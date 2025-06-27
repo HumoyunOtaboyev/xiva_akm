@@ -1,0 +1,25 @@
+{% extends "base.html" %} {% block content %}
+<!-- News Section -->
+<section class="news" id="news">
+  <div class="container">
+    <h2 class="section-title scroll-animate">So'nggi Yangiliklar</h2>
+    <div class="news-grid">
+      {% for news in news_list %}
+      <article class="news-card scroll-animate">
+        <div class="news-image">
+          <img src="{{ news.image.url }}" alt="{{ news.title }}" />
+        </div>
+        <div class="news-content">
+          <div class="news-date">{{ news.created_at }}</div>
+          <h3 class="news-title">{{ news.title }}</h3>
+          <p class="news-excerpt">{{ news.description }}</p>
+          <a href="{% url 'news_detail' news.pk %}" class="read-more"
+            >Batafsil o'qish →</a
+          >
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% load static %} 
+<!DOCTYPE html>
+<html lang="uz">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Xiva_shahar_AKM.UZ - Xiva Shahaer Axborot-Kutubxona Markazi</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}" />
+  </head>
+  <body>
+    {% include "components/header.html" %}
+
+    <main class="min-h-screen">
+      {% block content %}
+      {% endblock %}
+    </main>
+    {% include "components/footer.html" %}
+    <script src="{% static 'js/script.js' %}"></script>
+  </body>
+</html>

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<article class="news-detail">
+  <h1 class="news-title">{{news_detail.title}}</h1>
+  <div class="news-meta">
+    {{news_detail.created_at}} | Kutubxona yangiliklari
+  </div>
+  <img
+    src="{{news_detail.image.url}}"
+    alt="Yangi kitoblar"
+    class="news-image"
+  />
+  {% for news_image in news_detail.news_images.all %}
+  <img src="{{news_image.image.url}}" alt="Yangi kitoblar" class="news-image" />
+  {% endfor %}
+  <div class="news-content">
+    <p>{{news_detail.description}}</p>
+  </div>
+  <a href="{% url 'news' %}" class="back-link"
+    >← Yangiliklar ro'yxatiga qaytish</a
+  >
+</article>
+{% endblock %}

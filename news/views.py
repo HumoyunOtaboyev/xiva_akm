@@ -4,12 +4,12 @@ from news.models import News
 
 class NewsListView(ListView):
     model = News
-    template_name = "news.html"
+    template_name = "news/news.html"
     context_object_name = "news_list"
 
 
 class NewsDetailView(DetailView):
     model = News
-    template_name = "news_detail.html"
+    template_name = "news/detail.html"
     context_object_name = "news_detail"
 
