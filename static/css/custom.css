@@ -18,3 +18,25 @@ section {
 .news-detail {
     overflow: hidden;
 }
+
+.nav-btn {
+  background: linear-gradient(90deg, #4f8cff 0%, #235390 100%);
+  color: #fff;
+  padding: 0.30em 1em;
+  border: none;
+  border-radius: 30px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 14px rgba(79, 140, 255, 0.15);
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+
+.nav-btn:hover,
+.nav-btn:focus {
+  background: linear-gradient(90deg, #235390 0%, #4f8cff 100%);
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 8px 24px rgba(79, 140, 255, 0.25);
+}
