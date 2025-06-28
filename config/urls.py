@@ -7,6 +7,7 @@ urlpatterns = [
     path("", index,name="home"),
     path('news/', include("news.urls")),
     path('admin/', admin.site.urls),
+    path("ckeditor5/", include('django_ckeditor_5.urls')),
 
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

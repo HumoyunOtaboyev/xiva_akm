@@ -1,3 +1,20 @@
 .min-h-screen {
     min-height: 100vh;
 }
+
+section {
+    padding: 60px 0px;
+}
+.news-images_flex {
+    display: flex;
+    margin: 10px 0px;
+    gap: 10px;
+}
+.news-images_flex img {
+    width: 350px;
+}
+
+
+.news-detail {
+    overflow: hidden;
+}

@@ -27,6 +27,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # THIRD APP
+    'django_ckeditor_5',
+    # 'ckeditor_uploader',  # for image uploading support
+
     # CUSTOM APP
     'app',
     'news'
@@ -104,11 +108,52 @@ USE_I18N = True
 
 USE_TZ = True
 
+CKEDITOR_5_CONFIGS = {
+    "default": {
+        "toolbar": [
+            "heading", "|", "bold", "italic", "link", "bulletedList", "numberedList",
+            "blockQuote", "imageUpload", "insertTable", "mediaEmbed", "undo", "redo"
+        ],
+        "image": {
+            "toolbar": [
+                "imageTextAlternative", "imageStyle:alignLeft", "imageStyle:alignCenter", "imageStyle:alignRight", "imageStyle:side",
+            ]
+        },
+        "table": {
+            "contentToolbar": [
+                "tableColumn", "tableRow", "mergeTableCells", "tableCellProperties", "tableProperties"
+            ]
+        },
+        "mediaEmbed": {
+            "previewsInData": True
+        },
+        "heading": {
+            "options": [
+                {"model": "paragraph", "title": "Paragraph", "class": "ck-heading_paragraph"},
+                {"model": "heading1", "view": "h1", "title": "Heading 1", "class": "ck-heading_heading1"},
+                {"model": "heading2", "view": "h2", "title": "Heading 2", "class": "ck-heading_heading2"},
+                {"model": "heading3", "view": "h3", "title": "Heading 3", "class": "ck-heading_heading3"},
+                {"model": "heading4", "view": "h4", "title": "Heading 4", "class": "ck-heading_heading4"},
+                {"model": "heading5", "view": "h5", "title": "Heading 5", "class": "ck-heading_heading5"},
+                {"model": "heading6", "view": "h6", "title": "Heading 6", "class": "ck-heading_heading6"},
+            ]
+        },
+    }
+}
+
+
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
+# CKEDITOR_UPLOAD_PATH = "uploads/"
+# CKEDITOR_IMAGE_BACKEND = "pillow"
+
 STATIC_URL = 'static/'
+
+STATIC_ROOT = BASE_DIR / 'static'
+
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
