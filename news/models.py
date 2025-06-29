@@ -17,7 +17,6 @@ class News(models.Model):
         verbose_name="Created At",
         help_text="Date and time when the news item was created.",
         default=timezone.now
-
     )
     class Meta:
         verbose_name = "News Article"
