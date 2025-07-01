@@ -398,3 +398,9 @@ footer {
   opacity: 1;
   transform: translateY(0);
 }
+.w-30 {
+  width: 30%;
+}
+.w-70 {
+  width: 70%;
+}
