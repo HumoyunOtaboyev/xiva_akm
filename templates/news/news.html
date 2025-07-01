@@ -12,11 +12,12 @@
           alt="{{ news.title }}"
         />
         <div class="news-content">
-          <div class="news-date">{{ news.created_at }}</div>
+          <p class="news-date">{{ news.created_at }}</p>
           <h3 class="news-title">{{ news.title }}</h3>
           <p class="news-excerpt">{{ news.description }}</p>
           <a href="{% url 'news_detail' news.slug %}" class="read-more"
-            >Batafsil o'qish →</a>
+            >Batafsil o'qish →</a
+          >
         </div>
       </article>
       {% endfor %}

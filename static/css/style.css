@@ -29,6 +29,7 @@ header {
   right: 0;
   z-index: 1000;
   transition: all 0.3s ease;
+  padding: 5px 0px;
 }
 
 nav {
@@ -297,6 +298,9 @@ nav {
 .news-title {
   font-size: 1.3rem;
   color: #333;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .news-excerpt {
