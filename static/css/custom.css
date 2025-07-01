@@ -1,28 +1,31 @@
 .min-h-screen {
-    min-height: 100vh;
+  min-height: 100vh;
 }
 
 section {
-    padding: 60px 0px;
+  padding: 60px 0px;
 }
 .news-images_flex {
-    display: flex;
-    margin: 10px 0px;
-    gap: 10px;
+  display: flex;
+  margin: 10px 0px;
+  gap: 10px;
 }
 .news-images_flex img {
-    width: 350px;
+  width: 350px;
 }
-
 
 .news-detail {
-    overflow: hidden;
+  overflow: hidden;
+  margin: 20px 0px;
 }
-
+.news-content {
+  padding-top: 10px;
+  border-radius: 4px;
+}
 .nav-btn {
   background: linear-gradient(90deg, #4f8cff 0%, #235390 100%);
   color: #fff;
-  padding: 0.30em 1em;
+  padding: 0.3em 1em;
   border: none;
   border-radius: 30px;
   font-size: 1.1rem;
