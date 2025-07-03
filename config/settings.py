@@ -34,7 +34,9 @@ INSTALLED_APPS = [
     # CUSTOM APP
     'app',
     'news',
-    'hodimlar'
+    'hodimlar',
+    'elonlar',
+    'kutubxona'
 ]
 
 MIDDLEWARE = [
