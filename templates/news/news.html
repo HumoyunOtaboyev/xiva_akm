@@ -14,7 +14,7 @@
         <div class="news-content">
           <p class="news-date">{{ news.created_at }}</p>
           <h3 class="news-title">{{ news.title }}</h3>
-          <p class="news-excerpt">{{ news.description }}</p>
+          <p class="news-excerpt">{{ news.description|truncatewords:20|safe }}</p>
           <a href="{% url 'news_detail' news.slug %}" class="read-more"
             >Batafsil o'qish →</a
           >

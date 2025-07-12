@@ -1,26 +1,59 @@
-{% extends "base.html" %}
-{% block content %}
+{% extends "base.html" %} {% block content %}
 <!-- Hodimlar Bo‘limi -->
-<section class="hodimlar" id="hodimlar" style="background: linear-gradient(to bottom right, #f0f4ff, #e6ecf7); min-height: 100vh;">
+<section
+  class="hodimlar"
+  id="hodimlar"
+  style="
+    background: linear-gradient(to bottom right, #f0f4ff, #e6ecf7);
+    min-height: 100vh;
+  "
+>
   <div class="container py-5">
-    <h2 class="section-title scroll-animate text-center mb-5">Jamoamiz A'zolari</h2>
-    
-    <div class="d-flex flex-column gap-4">
+    <h2 class="section-title scroll-animate text-center mb-5">
+      Jamoamiz A'zolari
+    </h2>
+
+    <div
+      style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px"
+    >
       {% for hodim in hodimlar_list %}
-      <div class="news-card scroll-animate d-flex flex-column flex-md-row align-items-start p-3" style="background-color: #fff; border-radius: 16px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08); overflow: hidden;">
+      <div
+        class="scroll-animate d-flex flex-column flex-md-row align-items-start p-3"
+        style="
+          background-color: #fff;
+          border-radius: 16px;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+          overflow: hidden;
+          padding: 20px 0px;
+          text-align: center;
+          min-width: 300px;
+          max-width: 600px;
+          width: 100%;
+        "
+      >
         <img
           src="{{ hodim.image.url }}"
           alt="{{ hodim.ismi }}"
-          style="width: 260px; height: 260px; object-fit: cover; border-radius: 12px; margin-right: 24px;"
+          style="
+            width: 260px;
+            height: 260px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-right: 24px;
+          "
         />
-        <div class="news-content mt-3 mt-md-0">
-          <h3 class="news-title">{{ hodim.ismi }}</h3>
-          <p class="news-excerpt">
-            <strong></strong> {{ hodim.lavozimi }}<br>
-            <strong>Telefon:</strong> {{ hodim.phone }}<br>
-            <strong>Telegram:</strong> 
+        <div>
+          <h3>{{ hodim.ismi }}</h3>
+          <p>{{ hodim.lavozimi }}</p>
+          <p>
+            <strong>Telefon:</strong>
+            <a href="tel:{{ hodim.phone }}">{{ hodim.phone }}</a>
+          </p>
+          <p>
+            <strong>Telegram:</strong>
             <a href="https://t.me/{{ hodim.telegram|cut:'@' }}" target="_blank">
-              {{ hodim.telegram }}
+              <!-- {{ hodim.telegram }} -->
+                Aloqa
             </a>
           </p>
         </div>

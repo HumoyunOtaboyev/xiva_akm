@@ -6,7 +6,7 @@ class Hodimlar(models.Model):
     image = models.ImageField(upload_to='media/hodimlar/' ,verbose_name="Hodimning fotosurati: ")
     lavozimi = models.CharField(verbose_name="Hodimning lavozimi: ", max_length=500)
     phone = models.CharField(verbose_name="Hodimning telefon raqami: ", max_length=500)
-    telegram = models.CharField(verbose_name="Hodimning telegram raqami: ", max_length=500)
+    telegram = models.CharField(verbose_name="Hodimning telegram username: ", max_length=500)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

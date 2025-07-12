@@ -1,47 +1,78 @@
-{% extends "base.html" %}
-{% block content %}
+{% extends "base.html" %} {% block content %}
 
-<section class="hero" style="background: linear-gradient(to bottom right, #f0f4ff, #e6ecf7); padding: 60px 0;">
-    <div class="container text-center">
-        <h2 class="section-title scroll-animate">E'lonlar</h2>
-    </div>
+<section
+  class="hero"
+  style="
+    background: linear-gradient(to bottom right, #f0f4ff, #e6ecf7);
+    padding: 60px 0;
+  "
+>
+  <div class="container text-center">
+    <h2 class="section-title scroll-animate">E'lonlar</h2>
+  </div>
 </section>
-  
 
 <!-- E'lon Cards -->
-<section class="py-5" style="background-color: #f8f9fa;">
+<section class="py-5" style="background-color: #f8f9fa">
   <div class="container">
-    <div class="row">
+    <div class="news-grid">
       {% for elon in elonlar_list %}
-        <div class="col-md-4 mb-4">
-          <div class="card h-100 shadow-sm border-0">
-            <img src="{{ elon.image.url }}" class="card-img-top" alt="{{ elon.title }}" style="height: 250px; object-fit: cover;">
-            <div class="card-body">
-              <h5 class="card-title">{{ elon.title }}</h5>
-              <p class="card-text">{{ elon.description|truncatewords:20|safe }}</p>
-            </div>
+      <div class="news-card scroll-animate">
+        <div class="shadow-sm border-0">
+          <img
+            src="{{ elon.image.url }}"
+            class="news-image"
+            alt="{{ elon.title }}"
+            style="height: 250px; object-fit: cover"
+          />
+          <div class="news-content">
+            <p class="news-date">{{ elon.created_at }}</p>
+            <h5 class="news-title">{{ elon.title }}</h5>
+            <p class="card-text">
+              {{ elon.description|truncatewords:20|safe }}
+            </p>
+            <a href="{% url 'news_detail' news.slug %}" class="read-more"
+              >Batafsil o'qish →</a
+            >
           </div>
         </div>
+      </div>
       {% empty %}
-        <div class="col-12 text-center">
-          <p>Hozircha e'lonlar mavjud emas.</p>
-        </div>
+      <div class="col-12 text-center">
+        <p>Hozircha e'lonlar mavjud emas.</p>
+      </div>
       {% endfor %}
     </div>
 
     <!-- Pagination -->
     {% if is_paginated %}
-      <div class="pagination justify-content-center mt-4">
-        {% if page_obj.has_previous %}
-          <a class="btn btn-outline-primary mx-1" href="?page=1">&laquo; Birinchi</a>
-          <a class="btn btn-outline-primary mx-1" href="?page={{ page_obj.previous_page_number }}">Oldingi</a>
-        {% endif %}
-        <span class="btn btn-light mx-1 disabled">Sahifa {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
-        {% if page_obj.has_next %}
-          <a class="btn btn-outline-primary mx-1" href="?page={{ page_obj.next_page_number }}">Keyingi</a>
-          <a class="btn btn-outline-primary mx-1" href="?page={{ page_obj.paginator.num_pages }}">Oxirgi &raquo;</a>
-        {% endif %}
-      </div>
+    <div class="pagination justify-content-center mt-4">
+      {% if page_obj.has_previous %}
+      <a class="btn btn-outline-primary mx-1" href="?page=1"
+        >&laquo; Birinchi</a
+      >
+      <a
+        class="btn btn-outline-primary mx-1"
+        href="?page={{ page_obj.previous_page_number }}"
+        >Oldingi</a
+      >
+      {% endif %}
+      <span class="btn btn-light mx-1 disabled"
+        >Sahifa {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span
+      >
+      {% if page_obj.has_next %}
+      <a
+        class="btn btn-outline-primary mx-1"
+        href="?page={{ page_obj.next_page_number }}"
+        >Keyingi</a
+      >
+      <a
+        class="btn btn-outline-primary mx-1"
+        href="?page={{ page_obj.paginator.num_pages }}"
+        >Oxirgi &raquo;</a
+      >
+      {% endif %}
+    </div>
     {% endif %}
   </div>
 </section>

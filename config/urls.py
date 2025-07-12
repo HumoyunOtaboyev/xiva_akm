@@ -5,7 +5,7 @@ from django.conf.urls.static import static
 from app.views import index
 urlpatterns = [
     path("", index,name="home"),
-    path('news/', include("news.urls")),
+    path('yangiliklar/', include("news.urls")),
     path('admin/', admin.site.urls),
     path("ckeditor5/", include('django_ckeditor_5.urls')),
     path('hodimlar/',include('hodimlar.urls')),
