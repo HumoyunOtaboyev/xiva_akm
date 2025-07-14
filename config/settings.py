@@ -36,7 +36,8 @@ INSTALLED_APPS = [
     'news',
     'hodimlar',
     'elonlar',
-    'kutubxona'
+    'kutubxona',
+    'tadbirlar'
 ]
 
 MIDDLEWARE = [

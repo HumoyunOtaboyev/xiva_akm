@@ -10,4 +10,10 @@ class ElonlarListView(ListView):
 
     def get_queryset(self):
         # You can filter or order the queryset if needed
-        return Elonlar.objects.all().order_by('-created_at')
+        return Elonlar.objects.all().order_by('-id')
+    
+class ElonDetailView(DetailView):
+    model = Elonlar
+    template_name = "elonlar/elon_detail.html"
+    context_object_name = "elon"
+    paginate_by = 10

@@ -26,14 +26,12 @@
             style="height: 250px; object-fit: cover"
           />
           <div class="news-content">
-            <p class="news-date">{{ elon.created_at }}</p>
-            <h5 class="news-title">{{ elon.title }}</h5>
+            <!-- <p class="news-date">{{ elon.created_at }}</p> -->
+            <h5 class="elonlar-title">{{ elon.title }}</h5>
             <p class="card-text">
               {{ elon.description|truncatewords:20|safe }}
             </p>
-            <a href="{% url 'news_detail' news.slug %}" class="read-more"
-              >Batafsil o'qish →</a
-            >
+            <a href="{% url 'elon_detail' elon.id %}" class="read-more">Batafsil o'qish →</a>
           </div>
         </div>
       </div>

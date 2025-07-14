@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="py-5" style="background: linear-gradient(to bottom, #eef2f7, #f9fbfd);">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold text-primary">📅 Tadbirlar Ro‘yxati</h2>
+      <p class="text-muted">Saytimizda bo‘lib o‘tadigan so‘nggi tadbirlar bilan tanishing</p>
+    </div>
+
+    {% if tadbirlar_list %}
+    <div class="table-responsive">
+      <table class="table table-bordered table-hover align-middle shadow-sm bg-white rounded-3 overflow-hidden">
+        <thead class="table-primary text-center text-dark fw-semibold" style="font-size: 16px;">
+          <tr>
+            <th style="width: 5%;">#</th>
+            <th style="width: 30%;">Sarlavha</th>
+            <th style="width: 25%;">Joy</th>
+            <th style="width: 20%;">Sana va vaqt</th>
+            <th style="width: 20%;">Yaratilgan</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for tadbir in tadbirlar_list %}
+          <tr class="text-center">
+            <td>{{ forloop.counter }}</td>
+            <td class="text-start">{{ tadbir.title }}</td>
+            <td>{{ tadbir.place }}</td>
+            <td>{{ tadbir.date|date:"d-m-Y H:i" }}</td>
+            <td>{{ tadbir.created_at|date:"d-m-Y H:i" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info text-center mt-4" role="alert">
+      Hozircha hech qanday tadbir mavjud emas.
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+{% endblock %}

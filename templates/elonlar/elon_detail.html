@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="py-5">
+  <div class="container">
+    <h2>{{ elon.title }}</h2>
+    <img src="{{ elon.image.url }}" alt="{{ elon.title }}" style="max-width: 100%;">
+    <p>{{ elon.description|safe }}</p>
+  </div>
+</section>
+{% endblock %}
