@@ -2,9 +2,10 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from app.views import index
+from app.views import index,AboutUs
 urlpatterns = [
     path("", index,name="home"),
+    path("about/", AboutUs,name="about"),
     path('yangiliklar/', include("news.urls")),
     path('admin/', admin.site.urls),
     path("ckeditor5/", include('django_ckeditor_5.urls')),

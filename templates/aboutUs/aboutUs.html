@@ -1,0 +1,44 @@
+{% extends "base.html" %} {% load static %} {% block content %}
+<section>
+  <div class="container">
+    <h1 class="text-center pt-3 text-white">Biz haqimizda</h1>
+    <img
+      class="aboutus-img"
+      src="{% static 'img/library.jpg' %}"
+      alt="library"
+    />
+    <h2 class="text-center pt-3 text-white">Bizning ijtimoiy tarmoqlar</h2>
+    <div class="social-links">
+      <a href="https://www.facebook.com/profile.php?id=61576423037216">
+        <i class="fa-brands fa-facebook"></i>
+      </a>
+      <a href="https://www.instagram.com/xiva_shahar_akm">
+        <i class="fa-brands fa-instagram"></i>
+      </a>
+      <a href="https://www.youtube.com/@Xiva_shahar_AKM">
+        <i class="fa-brands fa-youtube"></i>
+      </a>
+      <a href="https://x.com/Xiva_shahar_AKM">
+        <i class="fa-brands fa-x-twitter"></i>
+      </a>
+      <a href="https://t.me/Xiva_shahar_kutubxona_markazi">
+        <i class="fa-brands fa-telegram"></i>
+      </a>
+      <a href="https://t.me/Xiva_shaxar_Axborot_kutubxona">
+        <i class="fa-solid fa-comment"></i>
+      </a>
+    </div>
+    <h2 class="text-center pt-3 text-white">Bizning manzil</h2>
+
+    <iframe
+      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d793.282511191475!2d60.36208643096125!3d41.38533772225413!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x41dfa5007dae16c3%3A0x16de7ea4685825da!2sKutubxona!5e1!3m2!1sen!2suk!4v1753552540936!5m2!1sen!2suk"
+      style="width: 100%; margin-top: 20px"
+      height="450"
+      style="border: 0"
+      allowfullscreen=""
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade"
+    ></iframe>
+  </div>
+</section>
+{% endblock %}

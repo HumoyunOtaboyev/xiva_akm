@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView
 from .models import *
 # Create your views here.
 class ElonlarListView(ListView):
@@ -12,8 +12,3 @@ class ElonlarListView(ListView):
         # You can filter or order the queryset if needed
         return Elonlar.objects.all().order_by('-id')
     
-class ElonDetailView(DetailView):
-    model = Elonlar
-    template_name = "elonlar/elon_detail.html"
-    context_object_name = "elon"
-    paginate_by = 10
