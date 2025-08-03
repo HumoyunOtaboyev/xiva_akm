@@ -1,44 +1,85 @@
-{% extends "base.html" %} {% load static %} {% block content %}
-<section>
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<section class="py-5" style="background: linear-gradient(to bottom right, #263238, #37474f); color: #ffffff;">
   <div class="container">
-    <h1 class="text-center pt-3 text-white">Biz haqimizda</h1>
-    <img
-      class="aboutus-img"
-      src="{% static 'img/library.jpg' %}"
-      alt="library"
-    />
-    <h2 class="text-center pt-3 text-white">Bizning ijtimoiy tarmoqlar</h2>
-    <div class="social-links">
-      <a href="https://www.facebook.com/profile.php?id=61576423037216">
-        <i class="fa-brands fa-facebook"></i>
-      </a>
-      <a href="https://www.instagram.com/xiva_shahar_akm">
-        <i class="fa-brands fa-instagram"></i>
-      </a>
-      <a href="https://www.youtube.com/@Xiva_shahar_AKM">
-        <i class="fa-brands fa-youtube"></i>
-      </a>
-      <a href="https://x.com/Xiva_shahar_AKM">
-        <i class="fa-brands fa-x-twitter"></i>
-      </a>
-      <a href="https://t.me/Xiva_shahar_kutubxona_markazi">
-        <i class="fa-brands fa-telegram"></i>
-      </a>
-      <a href="https://t.me/Xiva_shaxar_Axborot_kutubxona">
-        <i class="fa-solid fa-comment"></i>
-      </a>
+    <h1 class="text-center mb-4">Biz haqimizda</h1>
+    <div class="text-center mb-5">
+      <img class="img-fluid rounded shadow" style="max-height: 400px; object-fit: cover;" src="{% static 'img/library.jpg' %}" alt="library">
     </div>
-    <h2 class="text-center pt-3 text-white">Bizning manzil</h2>
 
-    <iframe
-      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d793.282511191475!2d60.36208643096125!3d41.38533772225413!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x41dfa5007dae16c3%3A0x16de7ea4685825da!2sKutubxona!5e1!3m2!1sen!2suk!4v1753552540936!5m2!1sen!2suk"
-      style="width: 100%; margin-top: 20px"
-      height="450"
-      style="border: 0"
-      allowfullscreen=""
-      loading="lazy"
-      referrerpolicy="no-referrer-when-downgrade"
-    ></iframe>
+    <h2 class="text-center mb-4">Bizning ijtimoiy tarmoqlar</h2>
+    <div class="row justify-content-center mb-5">
+      <div class="col-6 col-md-2 text-center mb-3">
+        <a href="https://www.facebook.com/profile.php?id=61576423037216" target="_blank" class="text-white">
+          <i class="fab fa-facebook fa-2x"></i>
+          <div>Facebook</div>
+        </a>
+      </div>
+      <div class="col-6 col-md-2 text-center mb-3">
+        <a href="https://www.instagram.com/xiva_shahar_akm" target="_blank" class="text-white">
+          <i class="fab fa-instagram fa-2x"></i>
+          <div>Instagram</div>
+        </a>
+      </div>
+      <div class="col-6 col-md-2 text-center mb-3">
+        <a href="https://t.me/Xiva_shahar_kutubxona_markazi" target="_blank" class="text-white">
+          <i class="fab fa-telegram fa-2x"></i>
+          <div>Telegram</div>
+        </a>
+      </div>
+      <div class="col-6 col-md-2 text-center mb-3">
+        <a href="https://www.youtube.com/@Xiva_shahar_AKM" target="_blank" class="text-white">
+          <i class="fab fa-youtube fa-2x"></i>
+          <div>YouTube</div>
+        </a>
+      </div>
+      <div class="col-6 col-md-2 text-center mb-3">
+        <a href="https://x.com/Xiva_shahar_AKM" target="_blank" class="text-white">
+          <i class="fab fa-x-twitter fa-2x"></i>
+          <div>X (Twitter)</div>
+        </a>
+      </div>
+      <div class="col-6 col-md-2 text-center mb-3">
+        <a href="https://t.me/Xiva_shaxar_Axborot_kutubxona" target="_blank" class="text-white">
+          <i class="fas fa-comment fa-2x"></i>
+          <div>Izoh</div>
+        </a>
+      </div>
+    </div>
+
+    <div class="bg-white text-dark p-4 rounded shadow mb-5">
+      <h2 class="mb-3">Kitobxonlarga xizmat ko‘rsatuvchi bo‘limlar</h2>
+      <p>Markazda quyidagi 4 ta bo‘lim kitobxonlarga xizmat ko‘rsatib kelmoqda:</p>
+      <ol>
+        <li>Axborot-kommunikatsiya texnologiyalari va Raqamlashtirish xizmati</li>
+        <li>Obonement va foydalanuvchilarga xizmat ko‘rsatish xizmati</li>
+        <li>Axborot-bibliografiya xizmati</li>
+        <li>Fondni to‘ldirish, saqlash va ularga ishlov berish xizmati</li>
+      </ol>
+    </div>
+    <div class="bg-white text-dark p-4 rounded shadow my-5">
+      <h2 class="mb-3">Ko‘chma kutubxonalar joylashgan manzillar</h2>
+      <p>Markaz aholi zich joylashgan chekka hududlarda o‘z ko‘chma kutubxonalarini tashkil etgan:</p>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item">📍 Xiva shahri <strong>Nurullaboy majmuasida</strong> – Nuroniylar binosi</li>
+        <li class="list-group-item">📍 Xiva shahri <strong>Qorovul qishlog‘i</strong> – Bo‘ston MFY binosi</li>
+        <li class="list-group-item">📍 Xiva shahri <strong>Xarbiy qism</strong> – Chaqiruv rezervi binosi</li>
+        <li class="list-group-item">📍 Xiva shahri <strong>Chandirqiyot qishlog‘i</strong> – Hilol MFY binosi</li>
+      </ul>
+    </div>
+    <h2 class="text-center mb-3">Bizning manzil</h2>
+    <div class="rounded overflow-hidden shadow">
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d793.282511191475!2d60.36208643096125!3d41.38533772225413!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x41dfa5007dae16c3%3A0x16de7ea4685825da!2sKutubxona!5e1!3m2!1sen!2suk!4v1753552540936!5m2!1sen!2suk"
+        width="100%"
+        height="450"
+        style="border:0;"
+        allowfullscreen=""
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+      ></iframe>
+    </div>
   </div>
 </section>
 {% endblock %}
