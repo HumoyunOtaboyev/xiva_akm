@@ -1,11 +1,11 @@
 <!-- Header -->
 <header>
   <nav class="container">
-    <div class="logo">
+    <a href="{% url 'home' %}" class="logo">
       <div class="logo-icon">📚</div>
       <div class="logo-text">Xiva_shahar_AKM.UZ</div>
-    </div>
-    <ul class="nav-links">
+    </a>
+    <ul class="nav-links ">
       <li><a href="{% url 'home' %}">Bosh sahifa</a></li>
       <li><a href="{% url 'elonlar' %}">E'lonlar</a></li>
       <li><a href="{% url 'yangiliklar' %}">Yangiliklar</a></li>
@@ -13,5 +13,11 @@
       <li><a href="#contact">Aloqa</a></li>
       <li><a href="{% url 'hodimlar' %}" class="nav-btn">Xodimlar</a></li>
     </ul>
+    <div class="responsive-btn">
+      <button id="menu" type="button">
+        <i class="fa-solid fa-xmark"></i>
+        <i class="fa-solid fa-bars"></i>
+      </button>
+    </div>
   </nav>
 </header>

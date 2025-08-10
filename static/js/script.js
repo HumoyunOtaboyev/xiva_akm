@@ -1,3 +1,13 @@
+const openBtn = document.querySelector("#menu");
+const navLinks = document.querySelector(".nav-links");
+openBtn.addEventListener("click", () => {
+  if (!navLinks.classList.contains("open")) {
+    navLinks.classList.add("open");
+  } else {
+    navLinks.classList.remove("open");
+  }
+});
+
 // Smooth scrolling
 document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
   anchor.addEventListener("click", function (e) {
