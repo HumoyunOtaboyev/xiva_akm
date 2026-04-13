@@ -15,7 +15,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-placeholder-key-for-d
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ["xiva-shahar-akm.uz"]
+ALLOWED_HOSTS = ["xiva-akm.uz"]
 
 
 # Application definition
@@ -157,8 +157,14 @@ CKEDITOR_5_CONFIGS = {
 # CKEDITOR_UPLOAD_PATH = "uploads/"
 # CKEDITOR_IMAGE_BACKEND = "pillow"
 
-STATIC_URL = 'static/'
+STATICFILES_DIRS ='/home/xivaakm1/xiva-akm.uz/django/static_files',
+STATIC_ROOT = '/home/xivaakm1/xiva-akm.uz/django/static'
+MEDIA_URL = 'media/'
+MEDIA_ROOT = '/home/xivaakm1/xiva-akm.uz/django/media'
 
+
+STATIC_URL = 'static/'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 STATIC_ROOT = BASE_DIR / 'static'
 
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
