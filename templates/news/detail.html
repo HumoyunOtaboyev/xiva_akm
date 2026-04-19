@@ -1,10 +1,44 @@
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %}
+
+{% block content %}
 <section class="news-detail">
   <div class="container">
+
+    <h1 class="news-title">
+      {{ news_detail.title }}
+    </h1>
+
+
+    <p class="news-date">
+      {{ news_detail.created_at }}
+    </p>
+
+
+    {% if news_detail.card_image %}
+      <img class="news-image"
+           src="{{ news_detail.card_image.url }}"
+           alt="{{ news_detail.title }}">
+    {% endif %}
+
+
     <div class="news-content">
       {{ news_detail.content|safe }}
-      <p class="news-date">{{ news_detail.created_at}}</p>
     </div>
+
+
+    <div class="tags">
+      {% for tag in news_detail.tags.all %}
+        <a href="{% url 'tag_detail' tag.slug %}" class="tag">
+          #{{ tag.name }}
+        </a>
+      {% endfor %}
+    </div>
+
+
+    <a href="{% url 'yangiliklar' %}" class="back-btn">
+      ← Orqaga
+    </a>
+
   </div>
 </section>
 {% endblock %}
