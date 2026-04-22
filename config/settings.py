@@ -1,22 +1,25 @@
-from pathlib import Path
-import os
-from dotenv import load_dotenv
 
+from pathlib import Path
+from dotenv import load_dotenv
+import os
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# =====================
-# SECRET & DEBUG
-# =====================
+
+# Quick-start development settings - unsuitable for production
+# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
+
+# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-placeholder-key-for-development')
 
+# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
 ALLOWED_HOSTS = ["xiva-akm.uz"]
 
 
-# =====================
-# APPS
-# =====================
+# Application definition
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -24,13 +27,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
     'whitenoise.runserver_nostatic',
-
-    # THIRD PARTY
+    # THIRD APP
     'django_ckeditor_5',
+    # 'ckeditor_uploader',  # for image uploading support
 
-    # CUSTOM APPS
+    # CUSTOM APP
     'app',
     'news',
     'hodimlar',
@@ -39,29 +41,20 @@ INSTALLED_APPS = [
     'tadbirlar'
 ]
 
-
-# =====================
-# MIDDLEWARE
-# =====================
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
-
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
 ]
-
-
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 ROOT_URLCONF = 'config.urls'
 
-
-# =====================
-# TEMPLATES
-# =====================
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -78,13 +71,12 @@ TEMPLATES = [
     },
 ]
 
-
 WSGI_APPLICATION = 'config.wsgi.application'
 
 
-# =====================
-# DATABASE
-# =====================
+# Database
+# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -93,70 +85,96 @@ DATABASES = {
 }
 
 
-# =====================
-# INTERNATIONALIZATION
-# =====================
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
-USE_I18N = True
-USE_TZ = True
+# Password validation
+# https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
-
-# =====================
-# STATIC FILES (CSS, JS)
-# =====================
-STATIC_URL = '/static/'
-
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static')
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
 ]
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
+# Internationalization
+# https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-# =====================
-# MEDIA FILES (images, uploads)
-# =====================
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+LANGUAGE_CODE = 'en-us'
 
+TIME_ZONE = 'UTC'
 
-# =====================
-# CKEDITOR 5 CONFIG
-# =====================
+USE_I18N = True
+
+USE_TZ = True
+
 CKEDITOR_5_CONFIGS = {
     "default": {
         "toolbar": [
-            "heading", "|", "bold", "italic", "link",
-            "bulletedList", "numberedList", "blockQuote",
-            "imageUpload", "insertTable", "mediaEmbed",
-            "undo", "redo"
+            "heading", "|", "bold", "italic", "link", "bulletedList", "numberedList",
+            "blockQuote", "imageUpload", "insertTable", "mediaEmbed", "undo", "redo"
         ],
         "image": {
             "toolbar": [
-                "imageTextAlternative",
-                "imageStyle:alignLeft",
-                "imageStyle:alignCenter",
-                "imageStyle:alignRight",
-                "imageStyle:side",
+                "imageTextAlternative", "imageStyle:alignLeft", "imageStyle:alignCenter", "imageStyle:alignRight", "imageStyle:side",
             ]
         },
         "table": {
             "contentToolbar": [
-                "tableColumn", "tableRow",
-                "mergeTableCells",
-                "tableCellProperties",
-                "tableProperties"
+                "tableColumn", "tableRow", "mergeTableCells", "tableCellProperties", "tableProperties"
             ]
         },
         "mediaEmbed": {
             "previewsInData": True
-        }
+        },
+        "heading": {
+            "options": [
+                {"model": "paragraph", "title": "Paragraph", "class": "ck-heading_paragraph"},
+                {"model": "heading1", "view": "h1", "title": "Heading 1", "class": "ck-heading_heading1"},
+                {"model": "heading2", "view": "h2", "title": "Heading 2", "class": "ck-heading_heading2"},
+                {"model": "heading3", "view": "h3", "title": "Heading 3", "class": "ck-heading_heading3"},
+                {"model": "heading4", "view": "h4", "title": "Heading 4", "class": "ck-heading_heading4"},
+                {"model": "heading5", "view": "h5", "title": "Heading 5", "class": "ck-heading_heading5"},
+                {"model": "heading6", "view": "h6", "title": "Heading 6", "class": "ck-heading_heading6"},
+            ]
+        },
     }
 }
 
 
-# =====================
-# DEFAULT AUTO FIELD
-# =====================
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/5.1/howto/static-files/
+
+# CKEDITOR_UPLOAD_PATH = "uploads/"
+# CKEDITOR_IMAGE_BACKEND = "pillow"
+
+STATICFILES_DIRS ='/home/xivaakm1/xiva-akm.uz/django/static_files',
+STATIC_ROOT = '/home/xivaakm1/xiva-akm.uz/django/static'
+MEDIA_URL = 'media/'
+MEDIA_ROOT = '/home/xivaakm1/xiva-akm.uz/django/media'
+
+
+STATIC_URL = 'static/'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATIC_ROOT = BASE_DIR / 'static'
+
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Default primary key field type
+# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'  
+
