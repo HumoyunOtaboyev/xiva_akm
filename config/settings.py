@@ -157,16 +157,16 @@ CKEDITOR_5_CONFIGS = {
 # CKEDITOR_UPLOAD_PATH = "uploads/"
 # CKEDITOR_IMAGE_BACKEND = "pillow"
 
-STATICFILES_DIRS ='/home/xivaakm1/xiva-akm.uz/django/static_files',
-STATIC_ROOT = '/home/xivaakm1/xiva-akm.uz/django/static'
-MEDIA_URL = 'media/'
-MEDIA_ROOT = '/home/xivaakm1/xiva-akm.uz/django/media'
-
 
 STATIC_URL = 'static/'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 STATIC_ROOT = BASE_DIR / 'static'
 
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
