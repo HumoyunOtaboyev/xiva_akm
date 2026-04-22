@@ -157,9 +157,13 @@ CKEDITOR_5_CONFIGS = {
 # CKEDITOR_UPLOAD_PATH = "uploads/"
 # CKEDITOR_IMAGE_BACKEND = "pillow"
 
+STATICFILES_DIRS ='/home/xivaakm1/xiva-akm.uz/django/static_files',
+STATIC_ROOT = '/home/xivaakm1/xiva-akm.uz/django/static'
+MEDIA_URL = 'media/'
+MEDIA_ROOT = '/home/xivaakm1/xiva-akm.uz/django/media'
 
-STATIC_URL = 'static/'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'static'
 
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
