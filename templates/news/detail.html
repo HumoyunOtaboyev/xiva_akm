@@ -1,44 +1,39 @@
 {% extends "base.html" %}
-
+{% block title %}{{ news_detail.title }} — Xiva shahar AKM{% endblock %}
+{% block description %}{{ news_detail.content|striptags|truncatewords:30 }}{% endblock %}
 {% block content %}
-<section class="news-detail">
+<section>
   <div class="container">
+    <article class="news-detail">
+      <h1>{{ news_detail.title }}</h1>
+      <p class="news-date">{{ news_detail.created_at|date:"d-M, Y" }}</p>
 
-    <h1 class="news-title">
-      {{ news_detail.title }}
-    </h1>
+      {% if news_detail.card_image %}
+        <img
+          class="detail-img"
+          src="{{ news_detail.card_image.url }}"
+          alt="{{ news_detail.title }}"
+          decoding="async"
+        />
+      {% endif %}
 
+      <div class="prose">
+        {{ news_detail.content|safe }}
+      </div>
 
-    <p class="news-date">
-      {{ news_detail.created_at }}
-    </p>
+      {% if news_detail.tags.all %}
+        <div class="tags">
+          {% for tag in news_detail.tags.all %}
+            <a href="{% url 'tag_detail' tag.slug %}" class="tag">#{{ tag.name }}</a>
+          {% endfor %}
+        </div>
+      {% endif %}
 
-
-    {% if news_detail.card_image %}
-      <img class="news-image"
-           src="{{ news_detail.card_image.url }}"
-           alt="{{ news_detail.title }}">
-    {% endif %}
-
-
-    <div class="news-content">
-      {{ news_detail.content|safe }}
-    </div>
-
-
-    <div class="tags">
-      {% for tag in news_detail.tags.all %}
-        <a href="{% url 'tag_detail' tag.slug %}" class="tag">
-          #{{ tag.name }}
-        </a>
-      {% endfor %}
-    </div>
-
-
-    <a href="{% url 'yangiliklar' %}" class="back-btn">
-      ← Orqaga
-    </a>
-
+      <a href="{% url 'yangiliklar' %}" class="back-btn">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow-left" /></svg>
+        Orqaga
+      </a>
+    </article>
   </div>
 </section>
 {% endblock %}

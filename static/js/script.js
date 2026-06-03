@@ -1,60 +1,63 @@
-const openBtn = document.querySelector("#menu");
-const navLinks = document.querySelector(".nav-links");
-openBtn.addEventListener("click", () => {
-  if (!navLinks.classList.contains("open")) {
-    navLinks.classList.add("open");
-  } else {
-    navLinks.classList.remove("open");
-  }
-});
+"use strict";
 
-// Smooth scrolling
-document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-  anchor.addEventListener("click", function (e) {
-    e.preventDefault();
-    document.querySelector(this.getAttribute("href")).scrollIntoView({
-      behavior: "smooth",
-    });
-  });
-});
+// ---- Mobile menu ----
+const menuBtn = document.querySelector("#menu");
+const navLinks = document.querySelector("#nav-links");
 
-// Scroll animations
-const observerOptions = {
-  threshold: 0.1,
-  rootMargin: "0px 0px -50px 0px",
-};
+if (menuBtn && navLinks) {
+  const setMenu = (open) => {
+    navLinks.classList.toggle("open", open);
+    menuBtn.setAttribute("aria-expanded", String(open));
+    menuBtn.setAttribute("aria-label", open ? "Menyuni yopish" : "Menyuni ochish");
+  };
 
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach((entry) => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add("animate");
-    }
-  });
-}, observerOptions);
-
-document.querySelectorAll(".scroll-animate").forEach((el) => {
-  observer.observe(el);
-});
-
-// Header scroll effect
-window.addEventListener("scroll", () => {
-  const header = document.querySelector("header");
-  if (window.scrollY > 100) {
-    header.style.background = "rgba(255, 255, 255, 0.98)";
-    header.style.boxShadow = "0 4px 30px rgba(0, 0, 0, 0.15)";
-  } else {
-    header.style.background = "rgba(255, 255, 255, 0.95)";
-    header.style.boxShadow = "0 4px 20px rgba(0, 0, 0, 0.1)";
-  }
-});
-
-// Feature cards hover effect
-document.querySelectorAll(".feature-card").forEach((card) => {
-  card.addEventListener("mouseenter", function () {
-    this.style.transform = "translateY(-10px) scale(1.02)";
+  menuBtn.addEventListener("click", () => {
+    setMenu(!navLinks.classList.contains("open"));
   });
 
-  card.addEventListener("mouseleave", function () {
-    this.style.transform = "translateY(0) scale(1)";
+  // Close the menu after navigating (mobile)
+  navLinks.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => setMenu(false));
   });
-});
+}
+
+// ---- Header shadow on scroll (rAF-throttled, no inline style writes) ----
+const header = document.querySelector("header");
+if (header) {
+  let ticking = false;
+  const update = () => {
+    header.classList.toggle("scrolled", window.scrollY > 50);
+    ticking = false;
+  };
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (!ticking) {
+        window.requestAnimationFrame(update);
+        ticking = true;
+      }
+    },
+    { passive: true }
+  );
+  update();
+}
+
+// ---- Reveal-on-scroll (animate once, then stop observing) ----
+const animated = document.querySelectorAll(".scroll-animate");
+if ("IntersectionObserver" in window && animated.length) {
+  const io = new IntersectionObserver(
+    (entries, obs) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("animate");
+          obs.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.1, rootMargin: "0px 0px -40px 0px" }
+  );
+  animated.forEach((el) => io.observe(el));
+} else {
+  // No IO support → show everything
+  animated.forEach((el) => el.classList.add("animate"));
+}

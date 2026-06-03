@@ -1,23 +1,38 @@
-<!-- Header -->
+{% load static %}
 <header>
-  <nav class="container">
+  <nav class="nav container" aria-label="Asosiy menyu">
     <a href="{% url 'home' %}" class="logo">
-      <div class="logo-icon">📚</div>
-      <div class="logo-text">Xiva_shahar_AKM.UZ</div>
+      <span class="logo-mark" aria-hidden="true">
+        <svg viewBox="0 0 48 42" width="44" height="40">
+          <path class="page page-left" d="M24 12 C18 8 11 7.5 5 9.5 L5 30 C11 28 18 28.5 24 32 Z" />
+          <path class="page page-right" d="M24 12 C30 8 37 7.5 43 9.5 L43 30 C37 28 30 28.5 24 32 Z" />
+          <path class="page-line" d="M9 15 C13 14 17 14.2 20.5 15.6 M9 19.5 C13 18.5 17 18.7 20.5 20.1 M27.5 15.6 C31 14.2 35 14 39 15 M27.5 20.1 C31 18.7 35 18.5 39 19.5" />
+          <path class="book-outline" d="M24 12 C18 8 11 7.5 5 9.5 L5 30 C11 28 18 28.5 24 32 C30 28.5 37 28 43 30 L43 9.5 C37 7.5 30 8 24 12 Z M24 12 L24 32" />
+          <path class="bookmark" d="M33 8 L37 7.2 L37 17 L35 15.2 L33 17 Z" />
+        </svg>
+      </span>
+      <span class="logo-text">Xiva shahar AKM</span>
     </a>
-    <ul class="nav-links ">
-      <li><a href="{% url 'home' %}">Bosh sahifa</a></li>
-      <li><a href="{% url 'elonlar' %}">E'lonlar</a></li>
-      <li><a href="{% url 'yangiliklar' %}">Yangiliklar</a></li>
-      <li><a href="{% url 'about' %}">Biz haqimizda</a></li>
+
+    <ul class="nav-links" id="nav-links">
+      <li><a href="{% url 'home' %}" {% if request.resolver_match.url_name == 'home' %}aria-current="page"{% endif %}>Bosh sahifa</a></li>
+      <li><a href="{% url 'elonlar' %}" {% if request.resolver_match.url_name == 'elonlar' %}aria-current="page"{% endif %}>E'lonlar</a></li>
+      <li><a href="{% url 'yangiliklar' %}" {% if request.resolver_match.url_name == 'yangiliklar' %}aria-current="page"{% endif %}>Yangiliklar</a></li>
+      <li><a href="{% url 'about' %}" {% if request.resolver_match.url_name == 'about' %}aria-current="page"{% endif %}>Biz haqimizda</a></li>
       <li><a href="#contact">Aloqa</a></li>
       <li><a href="{% url 'hodimlar' %}" class="nav-btn">Xodimlar</a></li>
     </ul>
-    <div class="responsive-btn">
-      <button id="menu" type="button">
-        <i class="fa-solid fa-xmark"></i>
-        <i class="fa-solid fa-bars"></i>
-      </button>
-    </div>
+
+    <button
+      id="menu"
+      class="menu-toggle"
+      type="button"
+      aria-label="Menyuni ochish"
+      aria-expanded="false"
+      aria-controls="nav-links"
+    >
+      <svg class="icon-menu" aria-hidden="true" viewBox="0 0 24 24" width="22" height="22"><use href="#i-menu" /></svg>
+      <svg class="icon-close" aria-hidden="true" viewBox="0 0 24 24" width="22" height="22"><use href="#i-close" /></svg>
+    </button>
   </nav>
 </header>

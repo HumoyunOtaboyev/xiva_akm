@@ -1,4 +1,3 @@
-<!-- Footer -->
 <footer id="contact">
   <div class="container">
     <div class="footer-content">
@@ -9,27 +8,43 @@
           Har qanday yoshdagi o'quvchilar uchun qulay muhit yaratamiz.
         </p>
       </div>
+
       <div class="footer-section">
         <h3>Aloqa</h3>
-        <p>📍 Xorazm viloyati, Xiva shahri, “Yangi turmush” mahallasi Markaz 1,4-uy</p>
-        <p>📞 +998 (91) 858-86-49</p>
-        <p>✉️ info@https://t.me/Xiva_sh_AKM</p>
+        <p class="footer-contact">
+          <svg class="icon" aria-hidden="true"><use href="#i-pin" /></svg>
+          <span>Xorazm viloyati, Xiva shahri, "Yangi turmush" mahallasi, Markaz 1, 4-uy</span>
+        </p>
+        <p class="footer-contact">
+          <svg class="icon" aria-hidden="true"><use href="#i-phone" /></svg>
+          <a href="tel:+998918588649">+998 (91) 858-86-49</a>
+        </p>
+        <p class="footer-contact">
+          <svg class="icon" aria-hidden="true"><use href="#i-telegram" /></svg>
+          <a href="https://t.me/Xiva_sh_AKM" target="_blank" rel="noopener">Telegram: Xiva_sh_AKM</a>
+        </p>
       </div>
+
       <div class="footer-section">
         <h3>Ish vaqti</h3>
-        <p>Dushanba - Juma: 9:00 - 18:00</p>
-        <p>Shanba: 9:00 - 15:00</p>
+        <p class="footer-contact">
+          <svg class="icon" aria-hidden="true"><use href="#i-clock" /></svg>
+          <span>Dushanba – Juma: 9:00 – 18:00</span>
+        </p>
+        <p>Shanba: 9:00 – 15:00</p>
         <p>Yakshanba: Dam olish kuni</p>
       </div>
+
       <div class="footer-section">
         <h3>Foydali havolalar</h3>
-        <p><a href="#">Kitoblar katalogi</a></p>
-        <p><a href="#">Onlayn xizmatlar</a></p>
-        <p><a href="#">Tadbirlar taqvimi</a></p>
+        <p><a href="{% url 'kutubxona' %}">Kitoblar katalogi</a></p>
+        <p><a href="{% url 'elonlar' %}">E'lonlar</a></p>
+        <p><a href="{% url 'tadbirlar' %}">Tadbirlar taqvimi</a></p>
       </div>
     </div>
+
     <div class="footer-bottom">
-      <p>&copy; 2025 Xiva_shahar_AKM.UZ - Barcha huquqlar himoyalangan</p>
+      <p>&copy; 2025 Xiva shahar AKM — Barcha huquqlar himoyalangan</p>
     </div>
   </div>
 </footer>

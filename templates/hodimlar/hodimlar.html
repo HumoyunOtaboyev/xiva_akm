@@ -1,63 +1,35 @@
-{% extends "base.html" %} {% block content %}
-<!-- Hodimlar Bo‘limi -->
-<section
-  class="hodimlar"
-  id="hodimlar"
-  style="
-    background: linear-gradient(to bottom right, #f0f4ff, #e6ecf7);
-    min-height: 100vh;
-  "
->
-  <div class="container py-5">
-    <h2 class="section-title scroll-animate text-center mb-5">
-      Jamoamiz A'zolari
-    </h2>
+{% extends "base.html" %}
+{% block title %}Xodimlar — Xiva shahar AKM{% endblock %}
+{% block content %}
+<section class="page-header">
+  <div class="container">
+    <h1 class="section-title scroll-animate">Jamoamiz a'zolari</h1>
+  </div>
+</section>
 
-    <div
-      style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px"
-    >
+<section>
+  <div class="container">
+    <div class="staff-grid">
       {% for hodim in hodimlar_list %}
-      <div
-        class="scroll-animate d-flex flex-column flex-md-row align-items-start p-3"
-        style="
-          background-color: #fff;
-          border-radius: 16px;
-          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-          overflow: hidden;
-          padding: 20px 0px;
-          text-align: center;
-          min-width: 300px;
-          max-width: 600px;
-          width: 100%;
-        "
-      >
-        <img
-          src="{{ hodim.image.url }}"
-          alt="{{ hodim.ismi }}"
-          style="
-            width: 260px;
-            height: 260px;
-            object-fit: cover;
-            border-radius: 12px;
-            margin-right: 24px;
-          "
-        />
-        <div>
-          <h3>{{ hodim.ismi }}</h3>
-          <p>{{ hodim.lavozimi }}</p>
-          <p>
-            <strong>Telefon:</strong>
-            <a href="tel:{{ hodim.phone }}">{{ hodim.phone }}</a>
-          </p>
-          <p>
-            <strong>Telegram:</strong>
-            <a href="https://t.me/{{ hodim.telegram|cut:'@' }}" target="_blank">
-              <!-- {{ hodim.telegram }} -->
-                Aloqa
-            </a>
-          </p>
-        </div>
-      </div>
+        <article class="staff-card scroll-animate">
+          {% if hodim.image %}
+            <img class="staff-photo" src="{{ hodim.image.url }}" alt="{{ hodim.ismi }}" loading="lazy" decoding="async" />
+          {% endif %}
+          <div class="staff-info">
+            <h3>{{ hodim.ismi }}</h3>
+            <p class="role">{{ hodim.lavozimi }}</p>
+            {% if hodim.phone %}
+              <p><strong>Telefon:</strong> <a href="tel:{{ hodim.phone }}">{{ hodim.phone }}</a></p>
+            {% endif %}
+            {% if hodim.telegram %}
+              <p><strong>Telegram:</strong>
+                <a href="https://t.me/{{ hodim.telegram|cut:'@' }}" target="_blank" rel="noopener">Aloqa</a>
+              </p>
+            {% endif %}
+          </div>
+        </article>
+      {% empty %}
+        <div class="empty-state"><p>Hozircha hodimlar ma'lumoti mavjud emas.</p></div>
       {% endfor %}
     </div>
   </div>

@@ -1,48 +1,22 @@
 {% extends "base.html" %}
+{% block title %}Yangiliklar — Xiva shahar AKM{% endblock %}
 {% block content %}
-
-<section class="news" id="news">
+<section class="page-header">
   <div class="container">
-    <h2 class="section-title scroll-animate">So'nggi Yangiliklar</h2>
-
-    <div class="news-grid">
-      {% for news in news_list %}
-      <article class="news-card scroll-animate">
-
-        {% if news.card_image %}
-          <img class="news-image"
-               src="{{ news.card_image.url }}"
-               alt="{{ news.title }}">
-        {% endif %}
-
-        <div class="news-content">
-          <p class="news-date">{{ news.created_at }}</p>
-
-          <h3 class="news-title">{{ news.title }}</h3>
-
-          <p class="news-excerpt">
-            {{ news.content|truncatewords:20|safe }}
-          </p>
-
-          <!-- 🔥 TAGLAR -->
-          <div class="tags">
-            {% for tag in news.tags.all %}
-              <a href="{% url 'tag_detail' tag.slug %}" class="tag">
-                #{{ tag.name }}
-              </a>
-            {% endfor %}
-          </div>
-
-          <a href="{% url 'news_detail' news.slug %}" class="read-more">
-            Batafsil o'qish →
-          </a>
-        </div>
-
-      </article>
-      {% endfor %}
-    </div>
-
+    <h1 class="section-title scroll-animate">So'nggi yangiliklar</h1>
   </div>
 </section>
 
+<section id="news">
+  <div class="container">
+    <div class="card-grid">
+      {% for news in news_list %}
+        {% include "components/news_card.html" %}
+      {% empty %}
+        <div class="empty-state"><p>Hozircha yangiliklar mavjud emas.</p></div>
+      {% endfor %}
+    </div>
+    {% include "components/pagination.html" %}
+  </div>
+</section>
 {% endblock %}

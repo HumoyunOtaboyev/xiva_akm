@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}#{{ tag.name }} — Xiva shahar AKM{% endblock %}
+{% block content %}
+<section class="page-header">
+  <div class="container">
+    <h1 class="section-title scroll-animate">#{{ tag.name }}</h1>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="card-grid">
+      {% for news in page_obj %}
+        {% include "components/news_card.html" %}
+      {% empty %}
+        <div class="empty-state"><p>Bu teg bo'yicha yangiliklar topilmadi.</p></div>
+      {% endfor %}
+    </div>
+    {% include "components/pagination.html" %}
+
+    <div class="text-center mt-6">
+      <a href="{% url 'yangiliklar' %}" class="back-btn">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow-left" /></svg>
+        Barcha yangiliklar
+      </a>
+    </div>
+  </div>
+</section>
+{% endblock %}

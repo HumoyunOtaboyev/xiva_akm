@@ -1,22 +1,41 @@
-{% load static %} 
+{% load static %}
 <!DOCTYPE html>
 <html lang="uz">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Xiva_shahar_AKM.UZ - Xiva Shahaer Axborot-Kutubxona Markazi</title>
+    <title>{% block title %}Xiva shahar Axborot-Kutubxona Markazi{% endblock %}</title>
+    <meta
+      name="description"
+      content="{% block description %}Xiva shahar axborot-kutubxona markazi — zamonaviy kutubxona xizmatlari, elektron resurslar, yangiliklar, e'lonlar va madaniy tadbirlar.{% endblock %}"
+    />
+    <meta name="theme-color" content="#0e7c86" />
+    <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml" />
+
+    {# Open Graph / Twitter #}
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Xiva shahar AKM" />
+    <meta property="og:title" content="{% block og_title %}Xiva shahar Axborot-Kutubxona Markazi{% endblock %}" />
+    <meta property="og:description" content="Bilim va ma'rifat yo'lida zamonaviy kutubxona markazi." />
+    <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/library.jpg' %}" />
+    <meta name="twitter:card" content="summary_large_image" />
+
     <link rel="stylesheet" href="{% static 'css/style.css' %}" />
     <link rel="stylesheet" href="{% static 'css/custom.css' %}" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script>
+      document.documentElement.classList.add("js");
+    </script>
   </head>
   <body>
+    <a class="skip-link" href="#main">Asosiy kontentga o'tish</a>
+    {% include "components/icons.html" %}
     {% include "components/header.html" %}
 
-    <main class="min-h-screen">
-      {% block content %}
-      {% endblock %}
+    <main id="main" class="min-h-screen">
+      {% block content %}{% endblock %}
     </main>
+
     {% include "components/footer.html" %}
-    <script src="{% static 'js/script.js' %}"></script>
+    <script src="{% static 'js/script.js' %}" defer></script>
   </body>
 </html>

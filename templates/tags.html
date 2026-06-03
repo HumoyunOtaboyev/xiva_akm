@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Teglar — Xiva shahar AKM{% endblock %}
+{% block content %}
+<section class="page-header">
+  <div class="container">
+    <h1 class="section-title scroll-animate">Teglar</h1>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="tags">
+      {% for tag in page_obj %}
+        <a href="{% url 'tag_detail' tag.slug %}" class="tag">#{{ tag.name }}</a>
+      {% empty %}
+        <div class="empty-state"><p>Hozircha teglar mavjud emas.</p></div>
+      {% endfor %}
+    </div>
+    {% include "components/pagination.html" %}
+  </div>
+</section>
+{% endblock %}

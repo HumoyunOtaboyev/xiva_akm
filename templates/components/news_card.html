@@ -1,0 +1,22 @@
+{# Expects `news` in context #}
+<article class="card scroll-animate">
+  {% if news.card_image %}
+    <img class="card-img" src="{{ news.card_image.url }}" alt="{{ news.title }}" loading="lazy" decoding="async" />
+  {% endif %}
+  <div class="card-body">
+    <p class="card-date">{{ news.created_at|date:"d-M, Y" }}</p>
+    <h3 class="card-title">{{ news.title }}</h3>
+    <p class="card-text">{{ news.content|striptags|truncatewords:20 }}</p>
+    {% if news.tags.all %}
+      <div class="tags">
+        {% for tag in news.tags.all %}
+          <a href="{% url 'tag_detail' tag.slug %}" class="tag">#{{ tag.name }}</a>
+        {% endfor %}
+      </div>
+    {% endif %}
+    <a href="{% url 'news_detail' news.slug %}" class="read-more">
+      Batafsil o'qish
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow-right" /></svg>
+    </a>
+  </div>
+</article>

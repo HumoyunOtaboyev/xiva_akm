@@ -1,10 +1,11 @@
 {% extends "base.html" %}
+{% block title %}Bosh sahifa — Xiva shahar AKM{% endblock %}
 {% block content %}
-<!-- Hero Section -->
+<!-- Hero -->
 <section class="hero" id="home">
   <div class="container">
     <div class="hero-content">
-      <h1>Xiva shahar axborot-kutubxona-markazi</h1>
+      <h1>Xiva shahar axborot-kutubxona markazi</h1>
       <p>
         Bilim va ma'rifat yo'lida hamrohingiz. Zamonaviy kutubxona xizmatlari va
         boy adabiy xazina bilan tanishing.
@@ -13,39 +14,32 @@
     </div>
   </div>
 </section>
-<!-- Features Section -->
+
+<!-- Features -->
 <section class="features" id="services">
   <div class="container">
-    <h2 class="section-title scroll-animate">Bizning Xizmatlarimiz</h2>
+    <h2 class="section-title scroll-animate">Bizning xizmatlarimiz</h2>
     <div class="features-grid">
-      <a href="/kutubxona" style="text-decoration: none; color: inherit;">
-        <div class="feature-card scroll-animate">
-          <div class="feature-icon">💻</div>
-          <h3>Raqamli Kutubxona</h3>
-          <p>
-            Onlayn kitoblar, elektron jurnallar va raqamli resurslar. Har qanday
-            vaqtda kirish imkoniyati.
-          </p>
-        </div>
+      <a class="feature-card scroll-animate" href="{% url 'kutubxona' %}">
+        <div class="feature-icon" aria-hidden="true">💻</div>
+        <h3>Raqamli kutubxona</h3>
+        <p>
+          Onlayn kitoblar, elektron jurnallar va raqamli resurslar. Har qanday
+          vaqtda kirish imkoniyati.
+        </p>
       </a>
-      <a href="/elonlar" style="text-decoration: none; color: inherit;">
-        <div class="feature-card scroll-animate">
-          <div class="feature-icon">🎨</div>
-          <h3>E'lonlar</h3>
-          <p>
-            Adabiy kechalar, yozuvchilar bilan uchrashuvlar, she'riy konkurslar va
-            boshqa madaniy tadbirlar.
-          </p>
-        </div>
+      <a class="feature-card scroll-animate" href="{% url 'elonlar' %}">
+        <div class="feature-icon" aria-hidden="true">🎨</div>
+        <h3>E'lonlar</h3>
+        <p>
+          Adabiy kechalar, yozuvchilar bilan uchrashuvlar, she'riy konkurslar va
+          boshqa madaniy tadbirlar.
+        </p>
       </a>
-      <a href="/tadbirlar" style="text-decoration: none; color: inherit;">
-        <div class="feature-card scroll-animate">
-          <div class="feature-icon">🔍</div>
-          <h3>Tadbirlar</h3>
-          <p>
-            Talabalar va tadqiqotchilar uchun maxsus tadbirlar.
-          </p>
-        </div>
+      <a class="feature-card scroll-animate" href="{% url 'tadbirlar' %}">
+        <div class="feature-icon" aria-hidden="true">🔍</div>
+        <h3>Tadbirlar</h3>
+        <p>Talabalar va tadqiqotchilar uchun maxsus tadbirlar.</p>
       </a>
     </div>
   </div>

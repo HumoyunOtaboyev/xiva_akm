@@ -1,102 +1,105 @@
 {% extends "base.html" %}
 {% load static %}
+{% block title %}Biz haqimizda — Xiva shahar AKM{% endblock %}
 {% block content %}
-<section class="py-5" style="background: linear-gradient(to bottom right, #263238, #37474f); color: #ffffff;">
+<!-- Intro hero -->
+<section class="about-hero">
   <div class="container">
-    <h1 class="text-center mb-4">Biz haqimizda</h1>
-    <div class="text-center mb-5">
-      <img class="img-fluid rounded shadow image-about" style="object-fit: cover;" src="{% static 'img/library.jpg' %}" alt="library">
+    <h1>Biz haqimizda</h1>
+    <div class="text-center mb-6">
+      <img class="about-img" src="{% static 'img/library.jpg' %}" alt="Xiva shahar axborot-kutubxona markazi binosi" loading="lazy" decoding="async" />
     </div>
-    <div class="container">
-      <p>
-        <span class="highlight">O‘zbekiston Respublikasi Prezidentining</span> 
-        2019-yil 7-iyundagi PQ-4354-son qaroriga asosan 
-        axborot-kutubxona markazi tashkil etilgan.
-      </p>
-    </div>
-    <div class="container">
-      <h1>Xiva shahar axborot-kutubxona markazi</h1>
-      <p>
-        Xiva shahar axborot-kutubxona markazi — bu aholiga ilmiy, badiiy, ijtimoiy va madaniy ma’lumotlarni taqdim etuvchi zamonaviy axborot muassasasi bo‘lib, quyidagi faoliyatlarni amalga oshiradi:
-      </p>
-      <ul>
-        <li>Bosma va elektron axborot manbalari bilan ta’minlash</li>
-        <li>Ilmiy-tadqiqot faoliyatini axborot bilan qo‘llab-quvvatlash</li>
-        <li>Elektron kutubxona va raqamli resurslar bazasini yuritish</li>
-        <li>Kitobxonlik madaniyatini rivojlantirish</li>
-        <li>Ma’naviy-ma’rifiy tadbirlar o‘tkazish</li>
-        <li>Ta’lim muassasalari, tashkilotlar va jamoatchilik bilan hamkorlikda axborot xizmati ko‘rsatish</li>
-      </ul>
-    </div>
-    <h2 class="text-center mb-4">Bizning ijtimoiy tarmoqlar</h2>
+    <p class="lead measure text-center">
+      <span class="highlight">O'zbekiston Respublikasi Prezidentining</span>
+      2019-yil 7-iyundagi PQ-4354-son qaroriga asosan axborot-kutubxona markazi
+      tashkil etilgan.
+    </p>
+  </div>
+</section>
 
-    <div class="social-flex row justify-content-center mb-5">
-      <div class="col-6 col-md-2 text-center mb-3">
-        <a href="https://www.facebook.com/profile.php?id=61576423037216" target="_blank" class="text-white">
-          <i class="fab fa-facebook fa-2x"></i> <br>
-          <span>Facebook</span>
-        </a>
-      </div>
-      <div class="col-6 col-md-2 text-center mb-3">
-        <a href="https://www.instagram.com/xiva_shahar_akm" target="_blank" class="text-white">
-          <i class="fab fa-instagram fa-2x"></i> <br>
-          <span>Instagram</span>
-        </a>
-      </div>
-      <div class="col-6 col-md-2 text-center mb-3">
-        <a href="https://t.me/Xiva_shahar_kutubxona_markazi" target="_blank" class="text-white">
-          <i class="fab fa-telegram fa-2x"></i> <br>
-          <span>Telegram</span>
-        </a>
-      </div>
-      <div class="col-6 col-md-2 text-center mb-3">
-        <a href="https://www.youtube.com/@Xiva_shahar_AKM" target="_blank" class="text-white">
-          <i class="fab fa-youtube fa-2x"></i> <br>
-          <span>YouTube</span>
-        </a>
-      </div>
-      <div class="col-6 col-md-2 text-center mb-3">
-        <a href="https://x.com/Xiva_shahar_AKM" target="_blank" class="text-white">
-          <i class="fab fa-x-twitter fa-2x"></i> <br>
-          <span>X (Twitter)</span>
-        </a>
-      </div>
-      <div class="col-6 col-md-2 text-center mb-3">
-        <a href="https://t.me/Xiva_shaxar_Axborot_kutubxona" target="_blank" class="text-white">
-          <i class="fas fa-comment fa-2x"></i> <br>
-          <span>Izoh</span>
-        </a>
-      </div>
-    </div>
+<!-- Mission -->
+<section>
+  <div class="container measure">
+    <h2 class="mb-4">Xiva shahar axborot-kutubxona markazi</h2>
+    <p class="mb-4">
+      Xiva shahar axborot-kutubxona markazi — bu aholiga ilmiy, badiiy, ijtimoiy
+      va madaniy ma'lumotlarni taqdim etuvchi zamonaviy axborot muassasasi
+      bo'lib, quyidagi faoliyatlarni amalga oshiradi:
+    </p>
+    <ul class="stack">
+      <li>Bosma va elektron axborot manbalari bilan ta'minlash</li>
+      <li>Ilmiy-tadqiqot faoliyatini axborot bilan qo'llab-quvvatlash</li>
+      <li>Elektron kutubxona va raqamli resurslar bazasini yuritish</li>
+      <li>Kitobxonlik madaniyatini rivojlantirish</li>
+      <li>Ma'naviy-ma'rifiy tadbirlar o'tkazish</li>
+      <li>Ta'lim muassasalari, tashkilotlar va jamoatchilik bilan hamkorlikda axborot xizmati ko'rsatish</li>
+    </ul>
+  </div>
+</section>
 
-    <div class="bg-white text-dark p-4 rounded shadow mb-5">
-      <h2 class="mb-3">Kitobxonlarga xizmat ko‘rsatuvchi bo‘limlar</h2>
-      <p>Markazda quyidagi 4 ta bo‘lim kitobxonlarga xizmat ko‘rsatib kelmoqda:</p>
-      <ol>
-        <li>Axborot-kommunikatsiya texnologiyalari va Raqamlashtirish xizmati</li>
-        <li>Obonement va foydalanuvchilarga xizmat ko‘rsatish xizmati</li>
+<!-- Social networks -->
+<section style="padding-top: 0">
+  <div class="container">
+    <h2 class="section-title">Bizning ijtimoiy tarmoqlar</h2>
+    <div class="social-grid">
+      <a class="social-link" href="https://www.facebook.com/profile.php?id=61576423037216" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-facebook" /></svg><span>Facebook</span>
+      </a>
+      <a class="social-link" href="https://www.instagram.com/xiva_shahar_akm" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-instagram" /></svg><span>Instagram</span>
+      </a>
+      <a class="social-link" href="https://t.me/Xiva_shahar_kutubxona_markazi" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-telegram" /></svg><span>Telegram</span>
+      </a>
+      <a class="social-link" href="https://www.youtube.com/@Xiva_shahar_AKM" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-youtube" /></svg><span>YouTube</span>
+      </a>
+      <a class="social-link" href="https://x.com/Xiva_shahar_AKM" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-x" /></svg><span>X (Twitter)</span>
+      </a>
+      <a class="social-link" href="https://t.me/Xiva_shaxar_Axborot_kutubxona" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-chat" /></svg><span>Izoh</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Departments & mobile libraries -->
+<section style="padding-top: 0">
+  <div class="container measure">
+    <div class="panel">
+      <h2>Kitobxonlarga xizmat ko'rsatuvchi bo'limlar</h2>
+      <p class="mb-4">Markazda quyidagi 4 ta bo'lim kitobxonlarga xizmat ko'rsatib kelmoqda:</p>
+      <ol class="stack">
+        <li>Axborot-kommunikatsiya texnologiyalari va raqamlashtirish xizmati</li>
+        <li>Obonement va foydalanuvchilarga xizmat ko'rsatish xizmati</li>
         <li>Axborot-bibliografiya xizmati</li>
-        <li>Fondni to‘ldirish, saqlash va ularga ishlov berish xizmati</li>
+        <li>Fondni to'ldirish, saqlash va ularga ishlov berish xizmati</li>
       </ol>
     </div>
-    <div class="bg-white text-dark p-4 rounded shadow my-5">
-      <h2 class="mb-3">Ko‘chma kutubxonalar joylashgan manzillar</h2>
-      <p>Markaz aholi zich joylashgan chekka hududlarda o‘z ko‘chma kutubxonalarini tashkil etgan:</p>
-      <ul class="list-group list-group-flush">
-        <li class="list-group-item">📍 Xiva shahri <strong>Nurullaboy majmuasida</strong> – Nuroniylar binosida</li>
-        <li class="list-group-item">📍 Xiva shahri <strong>Kalta minor mahalla</strong> – 2-son maktab binosida</li>
-        <li class="list-group-item">📍 Xiva shahri <strong>Shihlar mahalla</strong> – mahalla markazi binosida</li>
-        <li class="list-group-item">📍 Xiva shahri <strong>Gazchi mahalla</strong> – mahalla markazi binosida</li>
+
+    <div class="panel">
+      <h2>Ko'chma kutubxonalar joylashgan manzillar</h2>
+      <p class="mb-4">Markaz aholi zich joylashgan chekka hududlarda o'z ko'chma kutubxonalarini tashkil etgan:</p>
+      <ul class="list-clean">
+        <li>📍 Xiva shahri <strong>Nurullaboy majmuasida</strong> – Nuroniylar binosida</li>
+        <li>📍 Xiva shahri <strong>Kalta minor mahalla</strong> – 2-son maktab binosida</li>
+        <li>📍 Xiva shahri <strong>Shihlar mahalla</strong> – mahalla markazi binosida</li>
+        <li>📍 Xiva shahri <strong>Gazchi mahalla</strong> – mahalla markazi binosida</li>
       </ul>
     </div>
-    <h2 class="text-center mb-3">Bizning manzil</h2>
-    <div class="rounded overflow-hidden shadow">
+  </div>
+</section>
+
+<!-- Map -->
+<section style="padding-top: 0">
+  <div class="container">
+    <h2 class="section-title">Bizning manzil</h2>
+    <div class="map-embed">
       <iframe
+        title="Xiva shahar AKM joylashuvi xaritada"
         src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d793.282511191475!2d60.36208643096125!3d41.38533772225413!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x41dfa5007dae16c3%3A0x16de7ea4685825da!2sKutubxona!5e1!3m2!1sen!2suk!4v1753552540936!5m2!1sen!2suk"
-        width="100%"
-        height="450"
-        style="border:0;"
-        allowfullscreen=""
+        allowfullscreen
         loading="lazy"
         referrerpolicy="no-referrer-when-downgrade"
       ></iframe>
