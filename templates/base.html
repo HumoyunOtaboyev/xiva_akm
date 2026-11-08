@@ -22,6 +22,9 @@
 
     <link rel="stylesheet" href="{% static 'css/style.css' %}" />
     <link rel="stylesheet" href="{% static 'css/custom.css' %}" />
+    {# Kirish tizimi va header'dagi foydalanuvchi menyusi (ilova ichidagi statik fayl) #}
+    <link rel="stylesheet" href="{% static 'accounts/auth.css' %}" />
+    {% block extra_head %}{% endblock %}
     <script>
       document.documentElement.classList.add("js");
     </script>
@@ -37,5 +40,6 @@
 
     {% include "components/footer.html" %}
     <script src="{% static 'js/script.js' %}" defer></script>
+    <script src="{% static 'accounts/auth.js' %}" defer></script>
   </body>
 </html>

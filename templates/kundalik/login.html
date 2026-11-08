@@ -1,8 +1,0 @@
-{% extends "kundalik/auth_base.html" %}
-{% block title %}Kirish{% endblock %}
-{% block subtitle %}Kitoblaringizni kuzatish uchun kiring{% endblock %}
-{% block submit %}Kirish{% endblock %}
-{% block switch %}
-  <a href="{% url 'kundalik:password_reset' %}">Parolni unutdingizmi?</a><br>
-  Hisobingiz yo'qmi? <a href="{% url 'kundalik:register' %}">Ro'yxatdan o'ting</a>
-{% endblock %}

@@ -32,8 +32,8 @@ def send_code(user, code, purpose):
         "ignore_note": texts["ignore_note"],
     }
     subject = texts["subject"].format(code=code)
-    text = render_to_string("kundalik/email/code.txt", context)
-    html = render_to_string("kundalik/email/code.html", context)
+    text = render_to_string("accounts/email/code.txt", context)
+    html = render_to_string("accounts/email/code.html", context)
     try:
         send_mail(subject, text, None, [user.email], html_message=html, fail_silently=False)
     except Exception:  # SMTP/tarmoq xatolari turlicha bo'ladi

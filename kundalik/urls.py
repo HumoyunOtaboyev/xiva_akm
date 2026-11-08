@@ -1,5 +1,5 @@
-from django.contrib.auth.views import LogoutView
 from django.urls import path
+from django.views.generic import RedirectView
 
 from . import views
 
@@ -7,12 +7,10 @@ app_name = "kundalik"
 
 urlpatterns = [
     path("", views.dashboard, name="dashboard"),
-    path("kirish/", views.KundalikLoginView.as_view(), name="login"),
-    path("royxatdan-otish/", views.register, name="register"),
-    path("tasdiqlash/", views.verify_email, name="verify"),
-    path("parol-tiklash/", views.password_reset_request, name="password_reset"),
-    path("parol-tiklash/yangi-parol/", views.password_reset_confirm, name="password_reset_confirm"),
-    path("chiqish/", LogoutView.as_view(next_page="home"), name="logout"),
+
+    # Kirish sayt ildiziga ko'chdi — eski havolalar ishlashda davom etsin.
+    path("kirish/", RedirectView.as_view(pattern_name="accounts:login", query_string=True, permanent=True)),
+    path("royxatdan-otish/", RedirectView.as_view(pattern_name="accounts:register", query_string=True, permanent=True)),
 
     path("api/kitoblar/", views.add_book, name="api_add_book"),
     path("api/kitoblar/qidirish/", views.search_books, name="api_search_books"),

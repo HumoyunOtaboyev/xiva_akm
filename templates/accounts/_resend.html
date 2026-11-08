@@ -1,6 +1,6 @@
 <form method="post" class="resend-form">
   {% csrf_token %}
-  <button class="btn-link" type="submit" name="resend" value="1" id="resend-btn"
+  <button class="auth-link-btn" type="submit" name="resend" value="1" id="resend-btn"
     data-wait="{{ resend_wait }}"{% if resend_wait %} disabled{% endif %}>
     Kodni qayta yuborish{% if resend_wait %} ({{ resend_wait }} s){% endif %}
   </button>

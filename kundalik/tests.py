@@ -24,7 +24,7 @@ SIMPLE_STATIC = override_settings(
 class AuthTests(TestCase):
     def test_dashboard_requires_login(self):
         res = self.client.get(reverse("kundalik:dashboard"))
-        self.assertRedirects(res, reverse("kundalik:login") + "?next=/kundalik/")
+        self.assertRedirects(res, reverse("accounts:login") + "?next=/kundalik/")
 
     def test_rest_of_site_is_public(self):
         self.assertEqual(self.client.get(reverse("home")).status_code, 200)
@@ -32,7 +32,7 @@ class AuthTests(TestCase):
     PASSWORD = "Kitob-sevar-2026"
 
     def register(self, email="Aziz@Example.com", name="Aziz", password=PASSWORD):
-        return self.client.post(reverse("kundalik:register"), {
+        return self.client.post(reverse("accounts:register"), {
             "first_name": name, "email": email, "password1": password, "password2": password,
         })
 
@@ -40,11 +40,11 @@ class AuthTests(TestCase):
         return re.search(r"\b(\d{6})\b", mail.outbox[-1].body).group(1)
 
     def verify(self, code):
-        return self.client.post(reverse("kundalik:verify"), {"code": code})
+        return self.client.post(reverse("accounts:verify"), {"code": code})
 
     def test_register_creates_inactive_user_and_emails_code(self):
         res = self.register()
-        self.assertRedirects(res, reverse("kundalik:verify"))
+        self.assertRedirects(res, reverse("accounts:verify"))
         user = User.objects.get()
         self.assertEqual((user.username, user.email, user.first_name), ("aziz@example.com", "aziz@example.com", "Aziz"))
         self.assertFalse(user.is_active)
@@ -54,21 +54,21 @@ class AuthTests(TestCase):
         self.assertIn(code, mail.outbox[0].subject)
         self.assertNotEqual(EmailVerification.objects.get().code_hash, code)  # kod ochiq saqlanmaydi
         # Tasdiqlanmaguncha dashboard yopiq.
-        self.assertRedirects(self.client.get(reverse("kundalik:dashboard")), reverse("kundalik:login") + "?next=/kundalik/")
-        page = self.client.get(reverse("kundalik:verify"))
+        self.assertRedirects(self.client.get(reverse("kundalik:dashboard")), reverse("accounts:login") + "?next=/kundalik/")
+        page = self.client.get(reverse("accounts:verify"))
         self.assertContains(page, "a•••@example.com")
 
     def test_correct_code_activates_and_logs_in(self):
         self.register()
         res = self.verify(self.last_code())
-        self.assertRedirects(res, reverse("kundalik:dashboard"))
+        self.assertRedirects(res, reverse("home"))
         self.assertTrue(User.objects.get().is_active)
         self.assertFalse(EmailVerification.objects.exists())
         self.assertEqual(self.client.get(reverse("kundalik:dashboard")).status_code, 200)
         # Endi oddiy login ishlaydi.
         self.client.logout()
-        res = self.client.post(reverse("kundalik:login"), {"username": "aziz@example.com", "password": self.PASSWORD})
-        self.assertRedirects(res, reverse("kundalik:dashboard"))
+        res = self.client.post(reverse("accounts:login"), {"username": "aziz@example.com", "password": self.PASSWORD})
+        self.assertRedirects(res, reverse("home"))
 
     def test_wrong_code_and_attempt_limit(self):
         self.register()
@@ -92,37 +92,37 @@ class AuthTests(TestCase):
     def test_resend_has_cooldown_and_invalidates_old_code(self):
         self.register()
         old = self.last_code()
-        res = self.client.post(reverse("kundalik:verify"), {"resend": "1"}, follow=True)
+        res = self.client.post(reverse("accounts:verify"), {"resend": "1"}, follow=True)
         self.assertContains(res, "soniyadan keyin")
         self.assertEqual(len(mail.outbox), 1)
 
         EmailVerification.objects.update(last_sent_at=timezone.now() - timedelta(minutes=2))
-        res = self.client.post(reverse("kundalik:verify"), {"resend": "1"}, follow=True)
+        res = self.client.post(reverse("accounts:verify"), {"resend": "1"}, follow=True)
         self.assertContains(res, "Yangi kod yuborildi")
         self.assertEqual(len(mail.outbox), 2)
         new = self.last_code()
         if new != old:
             self.assertContains(self.verify(old), "Kod noto")
-        self.assertRedirects(self.verify(new), reverse("kundalik:dashboard"))
+        self.assertRedirects(self.verify(new), reverse("home"))
 
     def test_login_with_unverified_account_resends_code(self):
         self.register()
         self.client.logout()
         self.client.session.flush()
         # Noto'g'ri parol — oddiy xato, hech narsa oshkor qilinmaydi.
-        res = self.client.post(reverse("kundalik:login"), {"username": "aziz@example.com", "password": "xato"})
+        res = self.client.post(reverse("accounts:login"), {"username": "aziz@example.com", "password": "xato"})
         self.assertEqual(res.status_code, 200)
         self.assertEqual(len(mail.outbox), 1)
         # To'g'ri parol (kutish vaqti o'tgan) — yangi kod va tasdiqlash sahifasi.
         EmailVerification.objects.update(last_sent_at=timezone.now() - timedelta(minutes=2))
-        res = self.client.post(reverse("kundalik:login"), {"username": "Aziz@example.com", "password": self.PASSWORD})
-        self.assertRedirects(res, reverse("kundalik:verify"))
+        res = self.client.post(reverse("accounts:login"), {"username": "Aziz@example.com", "password": self.PASSWORD})
+        self.assertRedirects(res, reverse("accounts:verify"))
         self.assertEqual(len(mail.outbox), 2)
-        self.assertRedirects(self.verify(self.last_code()), reverse("kundalik:dashboard"))
+        self.assertRedirects(self.verify(self.last_code()), reverse("home"))
 
     def test_admin_deactivated_user_cannot_log_in(self):
         User.objects.create_user("blok@example.com", "blok@example.com", self.PASSWORD, is_active=False)
-        res = self.client.post(reverse("kundalik:login"), {"username": "blok@example.com", "password": self.PASSWORD})
+        res = self.client.post(reverse("accounts:login"), {"username": "blok@example.com", "password": self.PASSWORD})
         self.assertEqual(res.status_code, 200)
         self.assertNotIn("_auth_user_id", self.client.session)
         self.assertEqual(len(mail.outbox), 0)
@@ -131,7 +131,7 @@ class AuthTests(TestCase):
         self.register(password="Birinchi-parol-1")
         self.client.session.flush()
         res = self.register(name="Aziz K.", password="Ikkinchi-parol-2")
-        self.assertRedirects(res, reverse("kundalik:verify"))
+        self.assertRedirects(res, reverse("accounts:verify"))
         self.assertEqual(User.objects.count(), 1)
         user = User.objects.get()
         self.assertTrue(user.check_password("Ikkinchi-parol-2"))
@@ -141,7 +141,7 @@ class AuthTests(TestCase):
         res = self.register(password="12345678")
         self.assertContains(res, "faqat raqamlardan")
         self.assertContains(res, "Kamida 8 ta belgi")
-        res = self.client.post(reverse("kundalik:register"), {
+        res = self.client.post(reverse("accounts:register"), {
             "first_name": "Aziz", "email": "a@example.com", "password1": self.PASSWORD, "password2": "boshqa",
         })
         self.assertContains(res, "Parollar bir xil emas")
@@ -156,16 +156,16 @@ class AuthTests(TestCase):
         self.assertEqual(len(mail.outbox), 0)
 
     def test_verify_page_without_pending_registration_redirects(self):
-        self.assertRedirects(self.client.get(reverse("kundalik:verify")), reverse("kundalik:register"))
+        self.assertRedirects(self.client.get(reverse("accounts:verify")), reverse("accounts:register"))
 
     def test_email_send_failure_is_reported(self):
         with mock.patch("kundalik.emails.send_mail", side_effect=OSError("SMTP down")):
             with self.assertLogs("kundalik.emails", level="ERROR"):
-                res = self.client.post(reverse("kundalik:register"), {
+                res = self.client.post(reverse("accounts:register"), {
                     "first_name": "Aziz", "email": "aziz@example.com",
                     "password1": self.PASSWORD, "password2": self.PASSWORD,
                 }, follow=True)
-        self.assertEqual(res.redirect_chain[-1][0], reverse("kundalik:verify"))
+        self.assertEqual(res.redirect_chain[-1][0], reverse("accounts:verify"))
         self.assertContains(res, "Kodni emailga yuborib bo")
         self.assertTrue(EmailVerification.objects.exists())
 
@@ -182,17 +182,94 @@ class AuthTests(TestCase):
 
     def test_login_with_email_case_insensitive(self):
         User.objects.create_user("aziz@example.com", "aziz@example.com", "Kitob-sevar-2026")
-        res = self.client.post(reverse("kundalik:login"), {
+        res = self.client.post(reverse("accounts:login"), {
             "username": "Aziz@Example.com", "password": "Kitob-sevar-2026",
         })
-        self.assertRedirects(res, reverse("kundalik:dashboard"))
+        self.assertRedirects(res, reverse("home"))
 
     def test_logout_requires_post(self):
         user = User.objects.create_user("a@a.uz", "a@a.uz", "x")
         self.client.force_login(user)
-        res = self.client.post(reverse("kundalik:logout"))
+        res = self.client.post(reverse("accounts:logout"))
         self.assertRedirects(res, reverse("home"))
         self.assertNotIn("_auth_user_id", self.client.session)
+
+
+@SIMPLE_STATIC
+class SiteAuthTests(TestCase):
+    """Kirish tizimi saytning umumiy qismi: header'da ko'rinadi, kundalik esa kirishni talab qiladi."""
+
+    PASSWORD = "Kitob-sevar-2026"
+
+    def test_header_shows_login_for_anonymous(self):
+        res = self.client.get(reverse("yangiliklar"))
+        self.assertContains(res, f'href="{reverse("accounts:login")}?next=/yangiliklar/"')
+        self.assertNotContains(res, "user-menu")
+
+    def test_header_shows_user_menu_when_logged_in(self):
+        user = User.objects.create_user("aziz@example.com", "aziz@example.com", self.PASSWORD, first_name="Aziz")
+        self.client.force_login(user)
+        res = self.client.get(reverse("home"))
+        self.assertContains(res, "user-menu")
+        self.assertContains(res, "Aziz")
+        self.assertContains(res, reverse("accounts:logout"))
+        self.assertContains(res, reverse("kundalik:dashboard"))
+        self.assertNotContains(res, reverse("admin:index"))
+        user.is_staff = True
+        user.save()
+        self.assertContains(self.client.get(reverse("home")), reverse("admin:index"))
+
+    def test_login_from_site_returns_to_page(self):
+        User.objects.create_user("aziz@example.com", "aziz@example.com", self.PASSWORD)
+        res = self.client.post(reverse("accounts:login") + "?next=/elonlar/", {
+            "username": "aziz@example.com", "password": self.PASSWORD, "next": "/elonlar/",
+        })
+        self.assertRedirects(res, "/elonlar/")
+
+    def test_kundalik_redirects_to_login_and_back(self):
+        User.objects.create_user("aziz@example.com", "aziz@example.com", self.PASSWORD)
+        res = self.client.get(reverse("kundalik:dashboard"))
+        login_url = reverse("accounts:login") + "?next=/kundalik/"
+        self.assertRedirects(res, login_url)
+        self.assertContains(self.client.get(login_url), "O'qish kundaligidan foydalanish uchun")
+        res = self.client.post(login_url, {"username": "aziz@example.com", "password": self.PASSWORD, "next": "/kundalik/"})
+        self.assertRedirects(res, "/kundalik/")
+
+    def test_register_from_kundalik_returns_to_kundalik(self):
+        res = self.client.post(reverse("accounts:register") + "?next=/kundalik/", {
+            "first_name": "Aziz", "email": "aziz@example.com",
+            "password1": self.PASSWORD, "password2": self.PASSWORD, "next": "/kundalik/",
+        })
+        self.assertRedirects(res, reverse("accounts:verify"))
+        code = re.search(r"\b(\d{6})\b", mail.outbox[-1].body).group(1)
+        res = self.client.post(reverse("accounts:verify"), {"code": code})
+        self.assertRedirects(res, "/kundalik/")
+
+    def test_external_next_is_ignored(self):
+        User.objects.create_user("aziz@example.com", "aziz@example.com", self.PASSWORD)
+        res = self.client.post(reverse("accounts:login"), {
+            "username": "aziz@example.com", "password": self.PASSWORD, "next": "https://evil.example.com/",
+        })
+        self.assertRedirects(res, reverse("home"))
+        self.client.logout()
+        self.client.post(reverse("accounts:register"), {
+            "first_name": "B", "email": "b@example.com",
+            "password1": self.PASSWORD, "password2": self.PASSWORD, "next": "//evil.example.com/",
+        })
+        code = re.search(r"\b(\d{6})\b", mail.outbox[-1].body).group(1)
+        self.assertRedirects(self.client.post(reverse("accounts:verify"), {"code": code}), reverse("home"))
+
+    def test_old_kundalik_auth_urls_redirect(self):
+        res = self.client.get("/kundalik/kirish/?next=/kundalik/")
+        self.assertRedirects(res, "/kirish/?next=/kundalik/", status_code=301, fetch_redirect_response=False)
+        res = self.client.get("/kundalik/royxatdan-otish/")
+        self.assertRedirects(res, "/royxatdan-otish/", status_code=301, fetch_redirect_response=False)
+
+    def test_auth_pages_use_site_layout(self):
+        for name in ("accounts:login", "accounts:register", "accounts:password_reset"):
+            res = self.client.get(reverse(name))
+            self.assertContains(res, "auth-card")
+            self.assertContains(res, 'id="contact"')  # sayt footer'i
 
 
 @SIMPLE_STATIC
@@ -204,36 +281,36 @@ class PasswordResetTests(TestCase):
         self.user = User.objects.create_user("aziz@example.com", "aziz@example.com", self.OLD, first_name="Aziz")
 
     def request_code(self, email="Aziz@Example.com"):
-        return self.client.post(reverse("kundalik:password_reset"), {"email": email})
+        return self.client.post(reverse("accounts:password_reset"), {"email": email})
 
     def last_code(self):
         return re.search(r"\b(\d{6})\b", mail.outbox[-1].body).group(1)
 
     def confirm(self, code, p1=NEW, p2=None):
-        return self.client.post(reverse("kundalik:password_reset_confirm"), {
+        return self.client.post(reverse("accounts:password_reset_confirm"), {
             "code": code, "new_password1": p1, "new_password2": p2 or p1,
         })
 
     def test_login_page_links_to_reset(self):
-        self.assertContains(self.client.get(reverse("kundalik:login")), reverse("kundalik:password_reset"))
+        self.assertContains(self.client.get(reverse("accounts:login")), reverse("accounts:password_reset"))
 
     def test_full_reset_flow(self):
         res = self.request_code()
-        self.assertRedirects(res, reverse("kundalik:password_reset_confirm"))
+        self.assertRedirects(res, reverse("accounts:password_reset_confirm"))
         self.assertEqual(len(mail.outbox), 1)
         self.assertIn("parolni tiklash", mail.outbox[0].subject)
         res = self.confirm(self.last_code())
-        self.assertRedirects(res, reverse("kundalik:dashboard"))
+        self.assertRedirects(res, reverse("home"))
         self.user.refresh_from_db()
         self.assertTrue(self.user.check_password(self.NEW))
         self.assertFalse(PasswordResetCode.objects.exists())
         self.client.logout()
-        res = self.client.post(reverse("kundalik:login"), {"username": "aziz@example.com", "password": self.NEW})
-        self.assertRedirects(res, reverse("kundalik:dashboard"))
+        res = self.client.post(reverse("accounts:login"), {"username": "aziz@example.com", "password": self.NEW})
+        self.assertRedirects(res, reverse("home"))
 
     def test_unknown_email_gets_same_response_without_email(self):
         res = self.request_code("yoq@example.com")
-        self.assertRedirects(res, reverse("kundalik:password_reset_confirm"))
+        self.assertRedirects(res, reverse("accounts:password_reset_confirm"))
         self.assertEqual(len(mail.outbox), 0)
         self.assertContains(self.confirm("123456"), "Kod noto")
 
@@ -261,16 +338,16 @@ class PasswordResetTests(TestCase):
         self.assertContains(res, "Parol juda qisqa")
         self.assertContains(res, "faqat raqamlardan")
         self.assertEqual(PasswordResetCode.objects.get().attempts, 0)
-        self.assertRedirects(self.confirm(code), reverse("kundalik:dashboard"))
+        self.assertRedirects(self.confirm(code), reverse("home"))
 
     def test_resend_cooldown(self):
         self.request_code()
         self.request_code()  # darhol qayta so'rash — yangi xat yuborilmaydi
         self.assertEqual(len(mail.outbox), 1)
-        res = self.client.post(reverse("kundalik:password_reset_confirm"), {"resend": "1"}, follow=True)
+        res = self.client.post(reverse("accounts:password_reset_confirm"), {"resend": "1"}, follow=True)
         self.assertContains(res, "soniyadan keyin")
         PasswordResetCode.objects.update(last_sent_at=timezone.now() - timedelta(minutes=2))
-        res = self.client.post(reverse("kundalik:password_reset_confirm"), {"resend": "1"}, follow=True)
+        res = self.client.post(reverse("accounts:password_reset_confirm"), {"resend": "1"}, follow=True)
         self.assertContains(res, "Yangi kod yuborildi")
         self.assertEqual(len(mail.outbox), 2)
 
@@ -279,7 +356,7 @@ class PasswordResetTests(TestCase):
         self.user.save()
         EmailVerification.issue(self.user)
         self.request_code()
-        self.assertRedirects(self.confirm(self.last_code()), reverse("kundalik:dashboard"))
+        self.assertRedirects(self.confirm(self.last_code()), reverse("home"))
         self.user.refresh_from_db()
         self.assertTrue(self.user.is_active)
         self.assertFalse(EmailVerification.objects.exists())
@@ -294,7 +371,7 @@ class PasswordResetTests(TestCase):
         self.assertFalse(self.user.is_active)
 
     def test_confirm_page_without_request_redirects(self):
-        self.assertRedirects(self.client.get(reverse("kundalik:password_reset_confirm")), reverse("kundalik:password_reset"))
+        self.assertRedirects(self.client.get(reverse("accounts:password_reset_confirm")), reverse("accounts:password_reset"))
 
 
 @SIMPLE_STATIC

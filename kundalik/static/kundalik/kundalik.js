@@ -493,7 +493,7 @@
       let results = [];
       try {
         const res = await fetch(url + "?q=" + encodeURIComponent(q), { credentials: "same-origin" });
-        if (res.status === 401) { window.location.href = CFG.loginUrl; return; }
+        if (res.status === 401) { window.location.href = CFG.loginUrl + "?next=" + encodeURIComponent(window.location.pathname); return; }
         if (res.ok) results = (await res.json()).results || [];
       } catch (e) { /* tarmoq xatosi — natijasiz davom etamiz */ }
       if (mine !== seq || document.activeElement !== input) return;

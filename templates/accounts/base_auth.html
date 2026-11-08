@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}{% block auth_title %}{% endblock %} — Xiva shahar AKM{% endblock %}
+{% block extra_head %}<meta name="robots" content="noindex" />{% endblock %}
+{% block content %}
+<section class="auth-section">
+  <div class="container">
+    <div class="auth-card">
+      <div class="auth-icon" aria-hidden="true">{% block auth_icon %}🔐{% endblock %}</div>
+      <h1 class="auth-heading">{% block auth_heading %}{% endblock %}</h1>
+      <p class="auth-sub">{% block auth_sub %}{% endblock %}</p>
+
+      {% if messages %}
+        <div class="auth-messages">
+          {% for m in messages %}<div class="auth-msg auth-msg--{{ m.tags }}" role="{% if m.level >= 40 %}alert{% else %}status{% endif %}">{{ m }}</div>{% endfor %}
+        </div>
+      {% endif %}
+
+      {% block auth_body %}
+      <form method="post" class="auth-form" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+          <div class="auth-msg auth-msg--error" role="alert">{% for e in form.non_field_errors %}{{ e }} {% endfor %}</div>
+        {% endif %}
+        {% for field in form %}
+          <div class="auth-field">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% for e in field.errors %}<div class="auth-field-error">{{ e }}</div>{% endfor %}
+            {% if field.help_text %}<div class="auth-help">{{ field.help_text|safe }}</div>{% endif %}
+          </div>
+        {% endfor %}
+        {% if next %}<input type="hidden" name="next" value="{{ next }}" />{% endif %}
+        <button class="btn btn--primary auth-submit" type="submit">{% block auth_submit %}{% endblock %}</button>
+      </form>
+      {% endblock %}
+
+      <div class="auth-switch">{% block auth_switch %}{% endblock %}</div>
+    </div>
+  </div>
+</section>
+{% endblock %}

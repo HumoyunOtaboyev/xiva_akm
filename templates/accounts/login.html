@@ -1,0 +1,15 @@
+{% extends "accounts/base_auth.html" %}
+{% block auth_title %}Kirish{% endblock %}
+{% block auth_heading %}Kirish{% endblock %}
+{% block auth_sub %}Email va parolingiz bilan tizimga kiring{% endblock %}
+{% block auth_body %}
+  {% if for_kundalik %}
+    <div class="auth-msg auth-msg--info">📚 O'qish kundaligidan foydalanish uchun tizimga kiring. Hisobingiz bo'lmasa — ro'yxatdan o'ting.</div>
+  {% endif %}
+  {{ block.super }}
+{% endblock %}
+{% block auth_submit %}Kirish{% endblock %}
+{% block auth_switch %}
+  <a href="{% url 'accounts:password_reset' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Parolni unutdingizmi?</a>
+  <span>Hisobingiz yo'qmi? <a href="{% url 'accounts:register' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Ro'yxatdan o'ting</a></span>
+{% endblock %}

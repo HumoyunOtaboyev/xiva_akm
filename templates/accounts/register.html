@@ -1,0 +1,9 @@
+{% extends "accounts/base_auth.html" %}
+{% block auth_title %}Ro'yxatdan o'tish{% endblock %}
+{% block auth_icon %}📝{% endblock %}
+{% block auth_heading %}Ro'yxatdan o'tish{% endblock %}
+{% block auth_sub %}Hisob yarating — emailingizga tasdiqlash kodi yuboriladi{% endblock %}
+{% block auth_submit %}Ro'yxatdan o'tish{% endblock %}
+{% block auth_switch %}
+  <span>Hisobingiz bormi? <a href="{% url 'accounts:login' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Kiring</a></span>
+{% endblock %}

@@ -176,9 +176,10 @@ MEDIA_ROOT = '/home/xivaakm1/xiva-akm.uz/django/media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# O'qish kundaligi (kundalik) — kitobxonlar uchun kirish
-LOGIN_URL = 'kundalik:login'
-LOGIN_REDIRECT_URL = 'kundalik:dashboard'
+# Saytning umumiy kirish tizimi (kundalik/auth_views.py). Yopiq sahifalar (masalan,
+# O'qish kundaligi) kirmagan foydalanuvchini ?next= bilan kirish sahifasiga yuboradi.
+LOGIN_URL = 'accounts:login'
+LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
 
 # Email (ro'yxatdan o'tishda tasdiqlash kodi yuboriladi).

@@ -22,6 +22,33 @@
       <li><a href="#contact">Aloqa</a></li>
       <li><a href="{% url 'kundalik:dashboard' %}">O'qish kundaligi</a></li>
       <li><a href="{% url 'hodimlar' %}" class="nav-btn">Xodimlar</a></li>
+      {% if user.is_authenticated %}
+        <li class="nav-account">
+          <details class="user-menu">
+            <summary aria-label="Hisob menyusi">
+              <span class="user-menu-avatar" aria-hidden="true">{{ user.first_name|default:user.username|slice:":1"|upper }}</span>
+              <span class="user-menu-name">{{ user.first_name|default:user.username }}</span>
+              <svg class="user-menu-caret" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></svg>
+            </summary>
+            <div class="user-menu-panel">
+              <div class="user-menu-head">
+                <strong>{{ user.get_full_name|default:user.username }}</strong>
+                {% if user.email %}<small>{{ user.email }}</small>{% endif %}
+              </div>
+              <a href="{% url 'kundalik:dashboard' %}">📚 O'qish kundaligi</a>
+              {% if user.is_staff %}<a href="{% url 'admin:index' %}">⚙️ Admin panel</a>{% endif %}
+              <form method="post" action="{% url 'accounts:logout' %}">
+                {% csrf_token %}
+                <button type="submit">↩ Chiqish</button>
+              </form>
+            </div>
+          </details>
+        </li>
+      {% else %}
+        <li class="nav-account">
+          <a class="nav-login" href="{% url 'accounts:login' %}{% if request.resolver_match.namespace != 'accounts' %}?next={{ request.get_full_path|urlencode }}{% endif %}">Kirish</a>
+        </li>
+      {% endif %}
     </ul>
 
     <button

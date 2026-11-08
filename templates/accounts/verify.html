@@ -1,0 +1,11 @@
+{% extends "accounts/base_auth.html" %}
+{% block auth_title %}Emailni tasdiqlash{% endblock %}
+{% block auth_icon %}✉️{% endblock %}
+{% block auth_heading %}Emailni tasdiqlang{% endblock %}
+{% block auth_sub %}<strong>{{ masked_email }}</strong> manziliga 6 xonali kod yubordik. Kod {{ minutes }} daqiqa amal qiladi. Xat kelmasa, «Spam» papkasini ham tekshiring.{% endblock %}
+{% block auth_submit %}Tasdiqlash{% endblock %}
+{% block auth_body %}
+  {{ block.super }}
+  {% include "accounts/_resend.html" %}
+{% endblock %}
+{% block auth_switch %}<span>Email noto'g'rimi? <a href="{% url 'accounts:register' %}">Qaytadan ro'yxatdan o'ting</a></span>{% endblock %}

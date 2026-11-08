@@ -1,0 +1,370 @@
+/* ==========================================================================
+   Kirish tizimi (kirish / ro'yxatdan o'tish / parol tiklash) va header'dagi
+   foydalanuvchi menyusi. Sayt dizayn tokenlaridan (style.css :root) foydalanadi.
+   ========================================================================== */
+
+/* ---------- Header: Kirish tugmasi va foydalanuvchi menyusi ---------- */
+.nav-links a.nav-login {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.45em 1.1em;
+  border: 1.5px solid rgba(255, 255, 255, 0.75);
+  border-radius: var(--radius-pill);
+  color: #fff;
+  font-weight: 600;
+  transition: background var(--transition), color var(--transition);
+}
+.nav-links a.nav-login::after {
+  display: none;
+}
+.nav-links a.nav-login:hover {
+  background: #fff;
+  color: var(--primary-700);
+}
+
+.user-menu {
+  position: relative;
+}
+.user-menu summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: #fff;
+  font-weight: 600;
+  padding: 4px 10px 4px 4px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  transition: background var(--transition);
+  user-select: none;
+}
+.user-menu summary::-webkit-details-marker {
+  display: none;
+}
+.user-menu summary:hover,
+.user-menu[open] summary {
+  background: rgba(255, 255, 255, 0.24);
+}
+.user-menu summary:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+}
+.user-menu-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 700;
+  flex: none;
+}
+.user-menu-name {
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.user-menu-caret {
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  max-width: none;
+  flex: none;
+  display: block;
+  transition: transform var(--transition);
+}
+.user-menu[open] .user-menu-caret {
+  transform: rotate(180deg);
+}
+.user-menu-panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  min-width: 230px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  padding: 8px;
+  z-index: 1100;
+}
+.user-menu-head {
+  padding: 8px 10px 10px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 6px;
+  line-height: 1.35;
+}
+.user-menu-head strong {
+  display: block;
+  color: var(--text);
+}
+.user-menu-head small {
+  color: var(--muted);
+  font-size: 0.82rem;
+  word-break: break-all;
+}
+.nav-links .user-menu-panel a,
+.user-menu-panel button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 9px 10px;
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font: inherit;
+  font-weight: 500;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.nav-links .user-menu-panel a::after {
+  display: none;
+}
+.nav-links .user-menu-panel a:hover,
+.user-menu-panel button:hover {
+  background: var(--primary-tint);
+  color: var(--primary-700);
+}
+.user-menu-panel form {
+  margin: 0;
+}
+.user-menu-panel button {
+  color: #b42318;
+}
+.user-menu-panel button:hover {
+  background: #fdecec;
+  color: #b42318;
+}
+
+/* Header'ga "O'qish kundaligi" va kirish qo'shilgach menyu kengroq bo'ldi:
+   gamburger-menyu 860px o'rniga 1080px'dan boshlanadi (style.css'dagi qoidalar takrori). */
+.nav-links a,
+.logo-text {
+  white-space: nowrap;
+}
+@media (min-width: 1081px) and (max-width: 1300px) {
+  .nav-links {
+    gap: 16px;
+  }
+  .user-menu-name {
+    display: none;
+  }
+  .user-menu summary {
+    padding-right: 8px;
+  }
+}
+@media (max-width: 1080px) {
+  .menu-toggle {
+    display: inline-flex;
+  }
+  .nav-links {
+    display: none;
+  }
+  .nav-links.open {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-4);
+    position: fixed;
+    top: var(--header-h);
+    left: 0;
+    right: 0;
+    background: linear-gradient(160deg, var(--primary-700), var(--primary));
+    padding: var(--space-6) clamp(16px, 4vw, 24px) var(--space-8);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 16px 30px rgba(7, 76, 82, 0.35);
+    max-height: calc(100vh - var(--header-h));
+    overflow-y: auto;
+    animation: drawerOpen 0.28s ease-out;
+  }
+  .nav-links.open a {
+    width: 100%;
+  }
+  .nav-links.open .nav-account {
+    width: 100%;
+    padding-top: var(--space-2);
+    border-top: 1px solid rgba(255, 255, 255, 0.18);
+  }
+  .user-menu summary {
+    display: inline-flex;
+  }
+  .user-menu-panel {
+    position: static;
+    margin-top: var(--space-3);
+    box-shadow: none;
+  }
+}
+
+/* ---------- Kirish sahifalari ---------- */
+.auth-section {
+  padding: var(--space-8) 0 var(--space-10);
+  background:
+    radial-gradient(circle at 15% 0%, rgba(14, 124, 134, 0.1), transparent 45%),
+    radial-gradient(circle at 90% 100%, rgba(224, 122, 63, 0.1), transparent 45%);
+}
+.auth-card {
+  max-width: 440px;
+  margin: 0 auto;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: var(--space-6) clamp(20px, 5vw, 36px);
+  text-align: center;
+}
+.auth-icon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto var(--space-3);
+  border-radius: 50%;
+  background: var(--primary-tint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+}
+.auth-heading {
+  font-size: 1.6rem;
+  line-height: 1.25;
+  color: var(--text);
+}
+.auth-sub {
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin: var(--space-2) 0 var(--space-5);
+  line-height: 1.55;
+}
+.auth-sub strong {
+  color: var(--text);
+}
+
+.auth-messages {
+  margin-bottom: var(--space-4);
+}
+.auth-msg {
+  text-align: left;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-3);
+}
+.auth-msg--error {
+  background: #fdecec;
+  color: #b42318;
+}
+.auth-msg--success {
+  background: #e7f6ec;
+  color: #157f3c;
+}
+.auth-msg--info,
+.auth-msg--warning {
+  background: var(--primary-tint);
+  color: var(--primary-700);
+}
+
+.auth-form {
+  text-align: left;
+}
+.auth-field {
+  margin-bottom: var(--space-4);
+}
+.auth-field label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+.auth-field input {
+  width: 100%;
+  font: inherit;
+  font-size: 1rem;
+  color: var(--text);
+  padding: 0.7em 0.9em;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.auth-field input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: var(--ring);
+  background: #fff;
+}
+.auth-field input.code-input {
+  font-size: 1.7rem;
+  letter-spacing: 0.5em;
+  text-align: center;
+  font-weight: 700;
+  padding-left: 1em;
+}
+.auth-field-error {
+  color: #b42318;
+  font-size: 0.85rem;
+  margin-top: 6px;
+}
+.auth-help {
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin-top: 6px;
+  line-height: 1.45;
+}
+.auth-help ul {
+  padding-left: 18px;
+}
+.auth-submit {
+  width: 100%;
+  padding: 0.85em 1.4em;
+  margin-top: var(--space-2);
+}
+
+.resend-form {
+  margin-top: var(--space-3);
+  text-align: center;
+}
+.auth-link-btn {
+  background: none;
+  border: none;
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--primary);
+  cursor: pointer;
+  padding: 4px;
+}
+.auth-link-btn:disabled {
+  color: var(--muted);
+  cursor: default;
+}
+.auth-link-btn:not(:disabled):hover {
+  text-decoration: underline;
+}
+
+.auth-switch {
+  margin-top: var(--space-5);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border);
+  font-size: 0.92rem;
+  color: var(--muted);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.auth-switch:empty {
+  display: none;
+}
+.auth-switch a {
+  color: var(--primary);
+  font-weight: 600;
+}
+.auth-switch a:hover {
+  text-decoration: underline;
+}
