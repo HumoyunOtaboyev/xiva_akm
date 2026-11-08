@@ -20,6 +20,7 @@
       <li><a href="{% url 'yangiliklar' %}" {% if request.resolver_match.url_name == 'yangiliklar' %}aria-current="page"{% endif %}>Yangiliklar</a></li>
       <li><a href="{% url 'about' %}" {% if request.resolver_match.url_name == 'about' %}aria-current="page"{% endif %}>Biz haqimizda</a></li>
       <li><a href="#contact">Aloqa</a></li>
+      <li><a href="{% url 'kundalik:dashboard' %}">O'qish kundaligi</a></li>
       <li><a href="{% url 'hodimlar' %}" class="nav-btn">Xodimlar</a></li>
     </ul>
 

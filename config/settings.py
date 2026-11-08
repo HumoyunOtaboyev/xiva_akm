@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'hodimlar',
     'elonlar',
     'kutubxona',
-    'tadbirlar'
+    'tadbirlar',
+    'kundalik',
 ]
 
 MIDDLEWARE = [
@@ -171,6 +172,11 @@ MEDIA_ROOT = '/home/xivaakm1/xiva-akm.uz/django/media'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# O'qish kundaligi (kundalik) — kitobxonlar uchun kirish
+LOGIN_URL = 'kundalik:login'
+LOGIN_REDIRECT_URL = 'kundalik:dashboard'
+LOGOUT_REDIRECT_URL = 'home'
 
 
 # Security hardening (active only when DEBUG is off / in production)

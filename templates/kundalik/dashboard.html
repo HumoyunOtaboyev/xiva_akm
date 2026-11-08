@@ -1,0 +1,160 @@
+{% load static %}<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>O'qish kundaligi — Xiva shahar AKM</title>
+<link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
+<link rel="stylesheet" href="{% static 'kundalik/kundalik.css' %}">
+</head>
+<body
+  data-csrf="{{ csrf_token }}"
+  data-login-url="{% url 'kundalik:login' %}"
+  data-api-add-book="{% url 'kundalik:api_add_book' %}"
+  data-api-delete-book="{% url 'kundalik:api_delete_book' 0 %}"
+  data-api-add-log="{% url 'kundalik:api_add_log' %}"
+  data-api-delete-log="{% url 'kundalik:api_delete_log' 0 %}">
+
+<div class="app">
+  <nav class="sidebar" aria-label="Kundalik bo'limlari">
+    <a class="brand" href="{% url 'home' %}">📚 <span data-i18n="brand">O'qish kundaligi</span></a>
+    <button class="nav-item active" data-tab="dashboard" aria-current="page"><span class="nav-icon" aria-hidden="true">🏠</span><span data-i18n="nav_dashboard">Dashboard</span></button>
+    <button class="nav-item" data-tab="books"><span class="nav-icon" aria-hidden="true">📖</span><span data-i18n="nav_books">Mening kitoblarim</span></button>
+    <button class="nav-item" data-tab="log"><span class="nav-icon" aria-hidden="true">📝</span><span data-i18n="nav_log">O'qish jurnali</span></button>
+    <button class="nav-item" data-tab="stats"><span class="nav-icon" aria-hidden="true">📊</span><span data-i18n="nav_stats">Statistika</span></button>
+    <div class="sidebar-footer">
+      <a class="nav-item" href="{% url 'home' %}"><span class="nav-icon" aria-hidden="true">←</span><span data-i18n="back_to_site">Saytga qaytish</span></a>
+    </div>
+  </nav>
+
+  <main class="main">
+    <div class="topbar">
+      <label class="sr-only" for="lang-select">Til</label>
+      <select id="lang-select" class="lang-select">
+        <option value="uz">🇺🇿 UZ</option>
+        <option value="en">🇬🇧 EN</option>
+        <option value="ru">🇷🇺 RU</option>
+      </select>
+      <div class="user-chip">
+        <div class="user-avatar" id="user-avatar" aria-hidden="true"></div>
+        <div class="user-meta">
+          <div class="user-name" id="user-name">{{ display_name }}</div>
+          {% if user.email %}<div class="user-email">{{ user.email }}</div>{% endif %}
+        </div>
+        <form class="logout-form" method="post" action="{% url 'kundalik:logout' %}">
+          {% csrf_token %}
+          <button class="logout-btn" type="submit" data-i18n="logout">Chiqish</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <section class="page active" id="page-dashboard">
+      <div class="page-header">
+        <div><h1 data-i18n="dash_title">Dashboard</h1><p class="sub" id="dash-sub"></p></div>
+      </div>
+      <div class="stat-grid" id="dash-stats"></div>
+      <div class="panel">
+        <h2 class="section-title" data-i18n="currently_reading">Hozir o'qilmoqda</h2>
+        <div id="dash-reading"></div>
+      </div>
+      <div class="panel">
+        <h2 class="section-title" data-i18n="recent_activity">So'nggi faoliyat</h2>
+        <div id="dash-activity"></div>
+      </div>
+    </section>
+
+    <!-- BOOKS -->
+    <section class="page" id="page-books">
+      <div class="page-header">
+        <div><h1 data-i18n="books_title">Mening kitoblarim</h1><p class="sub" data-i18n="books_sub">Barcha kitoblaringiz bir joyda</p></div>
+        <button class="btn-primary" type="button" id="focus-add-book" data-i18n="add_book_btn">+ Kitob qo'shish</button>
+      </div>
+      <div class="filter-row" id="book-filters"></div>
+      <div class="book-grid" id="book-grid"></div>
+
+      <div class="panel" style="margin-top:26px;">
+        <h2 class="section-title" data-i18n="add_book_section">Kitob qo'shish</h2>
+        <form id="add-book-form" novalidate>
+          <div class="add-form">
+            <div class="field"><label for="nb-title" data-i18n="field_title">Nomi</label><input id="nb-title" maxlength="300" required data-i18n-placeholder="ph_title"></div>
+            <div class="field"><label for="nb-author" data-i18n="field_author">Muallif</label><input id="nb-author" maxlength="200" required data-i18n-placeholder="ph_author"></div>
+            <div class="field"><label for="nb-pages" data-i18n="field_pages">Sahifalar</label><input id="nb-pages" type="number" min="1" max="10000" inputmode="numeric" required placeholder="320"></div>
+            <div class="field"><label for="nb-genre" data-i18n="field_genre">Janr</label>
+              <select id="nb-genre">
+                {% for value, label in genres %}<option value="{{ value }}" data-i18n="genre_{{ value }}"{% if value == "other" %} selected{% endif %}>{{ label }}</option>{% endfor %}
+              </select>
+            </div>
+            <button class="btn-primary" type="submit" data-i18n="btn_add">Qo'shish</button>
+          </div>
+          <div class="form-error" id="book-error" role="alert"></div>
+        </form>
+      </div>
+    </section>
+
+    <!-- LOG -->
+    <section class="page" id="page-log">
+      <div class="page-header">
+        <div><h1 data-i18n="log_title">O'qish jurnali</h1><p class="sub" data-i18n="log_sub">Kunlik o'qish yozuvlaringiz</p></div>
+      </div>
+      <div class="panel">
+        <h2 class="section-title" data-i18n="add_entry">Yozuv qo'shish</h2>
+        <form id="add-log-form" novalidate>
+          <div class="log-form">
+            <div class="field"><label for="nl-book" data-i18n="field_book">Kitob</label><select id="nl-book"></select></div>
+            <div class="field"><label for="nl-date" data-i18n="field_date">Sana</label><input id="nl-date" type="date"></div>
+            <div class="field"><label for="nl-pages" data-i18n="field_pages">Sahifalar</label><input id="nl-pages" type="number" min="1" inputmode="numeric" required placeholder="24"></div>
+            <div class="field"><label for="nl-note" data-i18n="field_note">Izoh</label><input id="nl-note" maxlength="300" data-i18n-placeholder="ph_note"></div>
+            <button class="btn-primary" type="submit" data-i18n="btn_save">Saqlash</button>
+          </div>
+          <div class="form-error" id="log-error" role="alert"></div>
+        </form>
+      </div>
+      <div class="panel">
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th data-i18n="th_date">Sana</th><th data-i18n="th_book">Kitob</th><th data-i18n="th_pages_read">O'qilgan sahifa</th>
+              <th data-i18n="th_total_pages">Jami sahifa</th><th data-i18n="th_progress">Progress</th><th data-i18n="th_note">Izoh</th>
+              <th><span class="sr-only" data-i18n="th_actions">Amallar</span></th>
+            </tr></thead>
+            <tbody id="log-list"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- STATS -->
+    <section class="page" id="page-stats">
+      <div class="page-header">
+        <div><h1 data-i18n="stats_title">Statistika</h1><p class="sub" data-i18n="stats_sub">O'qish odatlaringiz raqamlarda</p></div>
+      </div>
+      <div class="stat-page-grid">
+        <div class="panel">
+          <h2 class="section-title" data-i18n="genre_chart">Janr bo'yicha kitoblar</h2>
+          <div id="genre-chart"></div>
+        </div>
+        <div class="panel">
+          <div class="streak-box">
+            <div class="streak-num" id="streak-num">0</div>
+            <div class="streak-label" data-i18n="day_streak">Kunlik seriya</div>
+          </div>
+          <div class="streak-box">
+            <div class="streak-num green" id="pages-total">0</div>
+            <div class="streak-label" data-i18n="pages_read_label">O'qilgan sahifalar</div>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <h2 class="section-title" id="month-chart-title"></h2>
+        <div id="month-chart"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+{{ state|json_script:"kundalik-state" }}
+<script src="{% static 'kundalik/kundalik.js' %}" defer></script>
+</body>
+</html>

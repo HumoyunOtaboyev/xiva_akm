@@ -14,6 +14,7 @@ urlpatterns = [
     path("elonlar/", include("elonlar.urls")),
     path("kutubxona/", include("kutubxona.urls")),
     path("tadbirlar/", include("tadbirlar.urls")),
+    path("kundalik/", include("kundalik.urls")),
 
     path("admin/", admin.site.urls),
     path("ckeditor5/", include('django_ckeditor_5.urls')),
