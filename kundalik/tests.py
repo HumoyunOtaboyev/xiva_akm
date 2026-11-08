@@ -1,13 +1,16 @@
 import json
+import re
 from datetime import timedelta
+from unittest import mock
 
 from django.contrib.auth import get_user_model
+from django.core import mail
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
-from .models import Author, Book, Reading, ReadingLog
+from .models import Author, Book, EmailVerification, Reading, ReadingLog
 
 User = get_user_model()
 
@@ -26,30 +29,146 @@ class AuthTests(TestCase):
     def test_rest_of_site_is_public(self):
         self.assertEqual(self.client.get(reverse("home")).status_code, 200)
 
-    def test_register_logs_in_and_uses_email_as_username(self):
-        res = self.client.post(reverse("kundalik:register"), {
-            "first_name": "Aziz",
-            "email": "Aziz@Example.com",
-            "password1": "Kitob-sevar-2026",
-            "password2": "Kitob-sevar-2026",
-        })
-        self.assertRedirects(res, reverse("kundalik:dashboard"))
-        user = User.objects.get()
-        self.assertEqual(user.username, "aziz@example.com")
-        self.assertEqual(user.email, "aziz@example.com")
-        self.assertEqual(user.first_name, "Aziz")
-        self.assertEqual(self.client.get(reverse("kundalik:dashboard")).status_code, 200)
+    PASSWORD = "Kitob-sevar-2026"
 
-    def test_register_rejects_duplicate_email(self):
-        User.objects.create_user("aziz@example.com", "aziz@example.com", "x")
-        res = self.client.post(reverse("kundalik:register"), {
-            "first_name": "Aziz",
-            "email": "AZIZ@example.com",
-            "password1": "Kitob-sevar-2026",
-            "password2": "Kitob-sevar-2026",
+    def register(self, email="Aziz@Example.com", name="Aziz", password=PASSWORD):
+        return self.client.post(reverse("kundalik:register"), {
+            "first_name": name, "email": email, "password1": password, "password2": password,
         })
+
+    def last_code(self):
+        return re.search(r"\b(\d{6})\b", mail.outbox[-1].body).group(1)
+
+    def verify(self, code):
+        return self.client.post(reverse("kundalik:verify"), {"code": code})
+
+    def test_register_creates_inactive_user_and_emails_code(self):
+        res = self.register()
+        self.assertRedirects(res, reverse("kundalik:verify"))
+        user = User.objects.get()
+        self.assertEqual((user.username, user.email, user.first_name), ("aziz@example.com", "aziz@example.com", "Aziz"))
+        self.assertFalse(user.is_active)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, ["aziz@example.com"])
+        code = self.last_code()
+        self.assertIn(code, mail.outbox[0].subject)
+        self.assertNotEqual(EmailVerification.objects.get().code_hash, code)  # kod ochiq saqlanmaydi
+        # Tasdiqlanmaguncha dashboard yopiq.
+        self.assertRedirects(self.client.get(reverse("kundalik:dashboard")), reverse("kundalik:login") + "?next=/kundalik/")
+        page = self.client.get(reverse("kundalik:verify"))
+        self.assertContains(page, "a•••@example.com")
+
+    def test_correct_code_activates_and_logs_in(self):
+        self.register()
+        res = self.verify(self.last_code())
+        self.assertRedirects(res, reverse("kundalik:dashboard"))
+        self.assertTrue(User.objects.get().is_active)
+        self.assertFalse(EmailVerification.objects.exists())
+        self.assertEqual(self.client.get(reverse("kundalik:dashboard")).status_code, 200)
+        # Endi oddiy login ishlaydi.
+        self.client.logout()
+        res = self.client.post(reverse("kundalik:login"), {"username": "aziz@example.com", "password": self.PASSWORD})
+        self.assertRedirects(res, reverse("kundalik:dashboard"))
+
+    def test_wrong_code_and_attempt_limit(self):
+        self.register()
+        code = self.last_code()
+        wrong = "000000" if code != "000000" else "111111"
+        res = self.verify(wrong)
+        self.assertContains(res, "Yana 4 ta urinish qoldi")
+        self.assertContains(self.verify("12ab"), "6 xonali kodni kiriting")
+        for _ in range(4):
+            self.verify(wrong)
+        res = self.verify(code)  # to'g'ri kod ham endi qabul qilinmaydi
+        self.assertContains(res, "Urinishlar soni tugadi")
+        self.assertFalse(User.objects.get().is_active)
+
+    def test_expired_code_rejected(self):
+        self.register()
+        EmailVerification.objects.update(expires_at=timezone.now() - timedelta(seconds=1))
+        self.assertContains(self.verify(self.last_code()), "muddati tugagan")
+        self.assertFalse(User.objects.get().is_active)
+
+    def test_resend_has_cooldown_and_invalidates_old_code(self):
+        self.register()
+        old = self.last_code()
+        res = self.client.post(reverse("kundalik:verify"), {"resend": "1"}, follow=True)
+        self.assertContains(res, "soniyadan keyin")
+        self.assertEqual(len(mail.outbox), 1)
+
+        EmailVerification.objects.update(last_sent_at=timezone.now() - timedelta(minutes=2))
+        res = self.client.post(reverse("kundalik:verify"), {"resend": "1"}, follow=True)
+        self.assertContains(res, "Yangi kod yuborildi")
+        self.assertEqual(len(mail.outbox), 2)
+        new = self.last_code()
+        if new != old:
+            self.assertContains(self.verify(old), "Kod noto")
+        self.assertRedirects(self.verify(new), reverse("kundalik:dashboard"))
+
+    def test_login_with_unverified_account_resends_code(self):
+        self.register()
+        self.client.logout()
+        self.client.session.flush()
+        # Noto'g'ri parol — oddiy xato, hech narsa oshkor qilinmaydi.
+        res = self.client.post(reverse("kundalik:login"), {"username": "aziz@example.com", "password": "xato"})
         self.assertEqual(res.status_code, 200)
+        self.assertEqual(len(mail.outbox), 1)
+        # To'g'ri parol (kutish vaqti o'tgan) — yangi kod va tasdiqlash sahifasi.
+        EmailVerification.objects.update(last_sent_at=timezone.now() - timedelta(minutes=2))
+        res = self.client.post(reverse("kundalik:login"), {"username": "Aziz@example.com", "password": self.PASSWORD})
+        self.assertRedirects(res, reverse("kundalik:verify"))
+        self.assertEqual(len(mail.outbox), 2)
+        self.assertRedirects(self.verify(self.last_code()), reverse("kundalik:dashboard"))
+
+    def test_admin_deactivated_user_cannot_log_in(self):
+        User.objects.create_user("blok@example.com", "blok@example.com", self.PASSWORD, is_active=False)
+        res = self.client.post(reverse("kundalik:login"), {"username": "blok@example.com", "password": self.PASSWORD})
+        self.assertEqual(res.status_code, 200)
+        self.assertNotIn("_auth_user_id", self.client.session)
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_unverified_email_can_register_again(self):
+        self.register(password="Birinchi-parol-1")
+        self.client.session.flush()
+        res = self.register(name="Aziz K.", password="Ikkinchi-parol-2")
+        self.assertRedirects(res, reverse("kundalik:verify"))
         self.assertEqual(User.objects.count(), 1)
+        user = User.objects.get()
+        self.assertTrue(user.check_password("Ikkinchi-parol-2"))
+        self.assertEqual(user.first_name, "Aziz K.")
+
+    def test_register_rejects_verified_email(self):
+        User.objects.create_user("aziz@example.com", "aziz@example.com", "x")
+        res = self.register(email="AZIZ@example.com")
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, "allaqachon ro")
+        self.assertEqual(User.objects.count(), 1)
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_verify_page_without_pending_registration_redirects(self):
+        self.assertRedirects(self.client.get(reverse("kundalik:verify")), reverse("kundalik:register"))
+
+    def test_email_send_failure_is_reported(self):
+        with mock.patch("kundalik.emails.send_mail", side_effect=OSError("SMTP down")):
+            with self.assertLogs("kundalik.emails", level="ERROR"):
+                res = self.client.post(reverse("kundalik:register"), {
+                    "first_name": "Aziz", "email": "aziz@example.com",
+                    "password1": self.PASSWORD, "password2": self.PASSWORD,
+                }, follow=True)
+        self.assertEqual(res.redirect_chain[-1][0], reverse("kundalik:verify"))
+        self.assertContains(res, "Kodni emailga yuborib bo")
+        self.assertTrue(EmailVerification.objects.exists())
+
+    def test_admin_can_activate_pending_user(self):
+        self.register()
+        admin_user = User.objects.create_superuser("admin", "admin@example.com", "x")
+        self.client.force_login(admin_user)
+        verification = EmailVerification.objects.get()
+        self.client.post(reverse("admin:kundalik_emailverification_changelist"), {
+            "action": "activate_users", "_selected_action": [verification.pk],
+        })
+        self.assertTrue(User.objects.get(username="aziz@example.com").is_active)
+        self.assertFalse(EmailVerification.objects.exists())
 
     def test_login_with_email_case_insensitive(self):
         User.objects.create_user("aziz@example.com", "aziz@example.com", "Kitob-sevar-2026")

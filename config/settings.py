@@ -5,6 +5,9 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# .env faylidagi qiymatlarni o'qiymiz (serverda allaqachon o'rnatilgan muhit o'zgaruvchilari ustun turadi).
+load_dotenv(BASE_DIR / '.env')
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -177,6 +180,23 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = 'kundalik:login'
 LOGIN_REDIRECT_URL = 'kundalik:dashboard'
 LOGOUT_REDIRECT_URL = 'home'
+
+# Email (ro'yxatdan o'tishda tasdiqlash kodi yuboriladi).
+# EMAIL_HOST berilmasa, xatlar yuborilmaydi — faqat server logiga (konsolga) yoziladi.
+EMAIL_HOST = os.environ.get('EMAIL_HOST', '')
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '465'))
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+EMAIL_USE_SSL = os.environ.get('EMAIL_USE_SSL', 'True').lower() == 'true'
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'False').lower() == 'true' and not EMAIL_USE_SSL
+EMAIL_TIMEOUT = 20
+EMAIL_BACKEND = (
+    'django.core.mail.backends.smtp.EmailBackend' if EMAIL_HOST
+    else 'django.core.mail.backends.console.EmailBackend'
+)
+DEFAULT_FROM_EMAIL = os.environ.get(
+    'DEFAULT_FROM_EMAIL', f'Xiva shahar AKM <{EMAIL_HOST_USER or "noreply@xiva-akm.uz"}>'
+)
 
 
 # Security hardening (active only when DEBUG is off / in production)

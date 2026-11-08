@@ -1,7 +1,10 @@
 from django.contrib import admin, messages
+from django.contrib.auth import get_user_model
 from django.db.models import Count
 
-from .models import Author, Book, Reading, ReadingLog
+from .models import Author, Book, EmailVerification, Reading, ReadingLog
+
+User = get_user_model()
 
 
 class ModerationMixin:
@@ -131,3 +134,27 @@ class ReadingLogAdmin(admin.ModelAdmin):
         super().delete_queryset(request, queryset)
         for reading in readings:
             reading.recalculate()
+
+
+@admin.register(EmailVerification)
+class EmailVerificationAdmin(admin.ModelAdmin):
+    """Ro'yxatdan o'tib, emailini hali tasdiqlamaganlar (faqat ko'rish uchun)."""
+
+    list_display = ("user", "email", "created_at", "last_sent_at", "expires_at", "attempts")
+    search_fields = ("user__email", "user__first_name")
+    readonly_fields = ("user", "expires_at", "attempts", "last_sent_at", "created_at")
+    actions = ("activate_users",)
+
+    def has_add_permission(self, request):
+        return False
+
+    @admin.display(description="Email", ordering="user__email")
+    def email(self, obj):
+        return obj.user.email
+
+    @admin.action(description="Emailni qo'lda tasdiqlash (hisobni faollashtirish)")
+    def activate_users(self, request, queryset):
+        user_ids = list(queryset.values_list("user_id", flat=True))
+        User.objects.filter(pk__in=user_ids).update(is_active=True)
+        queryset.delete()
+        self.message_user(request, f"{len(user_ids)} ta hisob faollashtirildi.", messages.SUCCESS)

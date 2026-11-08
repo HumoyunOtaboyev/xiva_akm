@@ -14,6 +14,13 @@
       <div class="login-brand">📚 O'qish kundaligi</div>
       <div class="login-sub">{% block subtitle %}{% endblock %}</div>
 
+      {% if messages %}
+        <div class="auth-messages">
+          {% for m in messages %}<div class="auth-msg auth-msg--{{ m.tags }}" role="{% if m.level >= 40 %}alert{% else %}status{% endif %}">{{ m }}</div>{% endfor %}
+        </div>
+      {% endif %}
+
+      {% block form %}
       <form method="post" novalidate>
         {% csrf_token %}
         {% if form.non_field_errors %}
@@ -30,6 +37,7 @@
         {% if next %}<input type="hidden" name="next" value="{{ next }}" />{% endif %}
         <button class="btn-login" type="submit">{% block submit %}{% endblock %}</button>
       </form>
+      {% endblock %}
 
       <div class="login-switch">{% block switch %}{% endblock %}</div>
       <a class="login-back" href="{% url 'home' %}">← Bosh sahifaga qaytish</a>

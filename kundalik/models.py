@@ -1,3 +1,6 @@
+import secrets
+from datetime import timedelta
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -5,6 +8,7 @@ from django.db import models
 from django.db.models import Sum
 from django.db.models.functions import Lower
 from django.utils import timezone
+from django.utils.crypto import constant_time_compare, salted_hmac
 
 MAX_BOOK_PAGES = 10000
 
@@ -238,3 +242,81 @@ class ReadingLog(models.Model):
         result = super().delete(*args, **kwargs)
         reading.recalculate()
         return result
+
+
+class EmailVerification(models.Model):
+    """Ro'yxatdan o'tgan, lekin emailini hali tasdiqlamagan kitobxon uchun kod.
+
+    Kodning o'zi saqlanmaydi — faqat HMAC xeshi. Tasdiqlangach yozuv o'chiriladi.
+    """
+
+    CODE_TTL = timedelta(minutes=15)
+    RESEND_COOLDOWN = timedelta(seconds=60)
+    MAX_ATTEMPTS = 5
+
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="email_verification",
+        verbose_name="Foydalanuvchi",
+    )
+    code_hash = models.CharField(max_length=128, editable=False)
+    expires_at = models.DateTimeField("Kod amal qiladi")
+    attempts = models.PositiveSmallIntegerField("Noto'g'ri urinishlar", default=0)
+    last_sent_at = models.DateTimeField("Oxirgi yuborilgan vaqt")
+    created_at = models.DateTimeField("Ro'yxatdan o'tgan vaqti", auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Email tasdiqlash"
+        verbose_name_plural = "Email tasdiqlashlar (kutilmoqda)"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return str(self.user)
+
+    @staticmethod
+    def _hash(user_id, code):
+        return salted_hmac("kundalik.email-verification", f"{user_id}:{code}").hexdigest()
+
+    @classmethod
+    def issue(cls, user):
+        """Yangi kod yaratadi (eskisi bekor bo'ladi). (yozuv, kod) qaytaradi."""
+        code = f"{secrets.randbelow(10 ** 6):06d}"
+        now = timezone.now()
+        verification, _ = cls.objects.update_or_create(
+            user=user,
+            defaults={
+                "code_hash": cls._hash(user.pk, code),
+                "expires_at": now + cls.CODE_TTL,
+                "attempts": 0,
+                "last_sent_at": now,
+            },
+        )
+        return verification, code
+
+    def seconds_until_resend(self):
+        remaining = (self.last_sent_at + self.RESEND_COOLDOWN - timezone.now()).total_seconds()
+        return max(0, int(remaining + 0.999))
+
+    def can_resend(self):
+        return self.seconds_until_resend() == 0
+
+    @property
+    def attempts_left(self):
+        return max(0, self.MAX_ATTEMPTS - self.attempts)
+
+    def check_code(self, code):
+        """"ok", "invalid", "expired" yoki "too_many" qaytaradi."""
+        if self.attempts >= self.MAX_ATTEMPTS:
+            return "too_many"
+        if timezone.now() > self.expires_at:
+            return "expired"
+        if constant_time_compare(self._hash(self.user_id, code), self.code_hash):
+            return "ok"
+        self.attempts += 1
+        self.save(update_fields=["attempts"])
+        return "too_many" if self.attempts >= self.MAX_ATTEMPTS else "invalid"
+
+    @classmethod
+    def is_pending(cls, user):
+        return not user.is_active and cls.objects.filter(user=user).exists()

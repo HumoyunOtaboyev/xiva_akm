@@ -1,0 +1,45 @@
+{% extends "kundalik/auth_base.html" %}
+{% block title %}Emailni tasdiqlash{% endblock %}
+{% block subtitle %}Emailni tasdiqlash{% endblock %}
+{% block form %}
+<p class="verify-text">
+  <strong>{{ masked_email }}</strong> manziliga 6 xonali kod yubordik.
+  Kod {{ minutes }} daqiqa amal qiladi. Xat kelmasa, «Spam» papkasini ham tekshiring.
+</p>
+
+<form method="post" novalidate>
+  {% csrf_token %}
+  <div class="login-field">
+    <label for="{{ form.code.id_for_label }}">{{ form.code.label }}</label>
+    {{ form.code }}
+    {% for e in form.code.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+  </div>
+  <button class="btn-login" type="submit">Tasdiqlash</button>
+</form>
+
+<form method="post" class="resend-form">
+  {% csrf_token %}
+  <button class="btn-link" type="submit" name="resend" value="1" id="resend-btn"
+    data-wait="{{ resend_wait }}"{% if resend_wait %} disabled{% endif %}>
+    Kodni qayta yuborish{% if resend_wait %} ({{ resend_wait }} s){% endif %}
+  </button>
+</form>
+<script>
+  (function () {
+    var btn = document.getElementById("resend-btn");
+    var left = Number(btn.dataset.wait) || 0;
+    if (!left) return;
+    var timer = setInterval(function () {
+      left -= 1;
+      if (left <= 0) {
+        clearInterval(timer);
+        btn.disabled = false;
+        btn.textContent = "Kodni qayta yuborish";
+      } else {
+        btn.textContent = "Kodni qayta yuborish (" + left + " s)";
+      }
+    }, 1000);
+  })();
+</script>
+{% endblock %}
+{% block switch %}Email noto'g'rimi? <a href="{% url 'kundalik:register' %}">Qaytadan ro'yxatdan o'ting</a>{% endblock %}

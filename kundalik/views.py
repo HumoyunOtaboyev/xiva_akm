@@ -3,7 +3,8 @@ import re
 from datetime import date as date_cls
 from functools import wraps
 
-from django.contrib.auth import login
+from django.contrib import messages
+from django.contrib.auth import get_user_model, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.db import IntegrityError, transaction
@@ -13,16 +14,50 @@ from django.shortcuts import redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
 
-from .forms import EmailAuthenticationForm, RegisterForm
-from .models import MAX_BOOK_PAGES, Author, Book, Reading, ReadingLog
+from .emails import mask_email, send_verification_code
+from .forms import EmailAuthenticationForm, RegisterForm, VerifyCodeForm
+from .models import MAX_BOOK_PAGES, Author, Book, EmailVerification, Reading, ReadingLog
+
+User = get_user_model()
+PENDING_SESSION_KEY = "kundalik_pending_user"
 
 
 # ---------------------------------------------------------------- auth
+
+SEND_FAILED = (
+    "Kodni emailga yuborib bo'lmadi. Birozdan keyin «Kodni qayta yuborish» tugmasini bosing "
+    "yoki markaz bilan bog'laning."
+)
+
+
+def send_new_code(request, user):
+    """Yangi kod yaratib yuboradi va foydalanuvchini sessiyada "kutilmoqda" deb belgilaydi."""
+    _, code = EmailVerification.issue(user)
+    request.session[PENDING_SESSION_KEY] = user.pk
+    if not send_verification_code(user, code):
+        messages.error(request, SEND_FAILED)
+        return False
+    return True
+
 
 class KundalikLoginView(LoginView):
     template_name = "kundalik/login.html"
     authentication_form = EmailAuthenticationForm
     redirect_authenticated_user = True
+
+    def form_valid(self, form):
+        user = form.pending_user
+        if user is None:
+            return super().form_valid(form)
+        # Parol to'g'ri, lekin email hali tasdiqlanmagan.
+        verification = EmailVerification.objects.get(user=user)
+        if verification.can_resend():
+            if send_new_code(self.request, user):
+                messages.info(self.request, "Emailingiz hali tasdiqlanmagan. Yangi kod yubordik.")
+        else:
+            self.request.session[PENDING_SESSION_KEY] = user.pk
+            messages.info(self.request, "Emailingiz hali tasdiqlanmagan. Emailga yuborilgan kodni kiriting.")
+        return redirect("kundalik:verify")
 
 
 def register(request):
@@ -31,9 +66,52 @@ def register(request):
     form = RegisterForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
         user = form.save()
-        login(request, user, backend="django.contrib.auth.backends.ModelBackend")
-        return redirect("kundalik:dashboard")
+        send_new_code(request, user)
+        return redirect("kundalik:verify")
     return render(request, "kundalik/register.html", {"form": form})
+
+
+def verify_email(request):
+    """Emailga yuborilgan 6 xonali kodni tekshiradi; to'g'ri bo'lsa hisobni faollashtirib kiritadi."""
+    user_id = request.session.get(PENDING_SESSION_KEY)
+    user = User.objects.filter(pk=user_id, is_active=False).first() if user_id else None
+    verification = EmailVerification.objects.filter(user=user).first() if user else None
+    if verification is None:
+        request.session.pop(PENDING_SESSION_KEY, None)
+        return redirect("kundalik:dashboard" if request.user.is_authenticated else "kundalik:register")
+
+    form = VerifyCodeForm()
+    if request.method == "POST":
+        if "resend" in request.POST:
+            wait = verification.seconds_until_resend()
+            if wait:
+                messages.error(request, f"Yangi kodni {wait} soniyadan keyin so'rashingiz mumkin.")
+            elif send_new_code(request, user):
+                messages.success(request, "Yangi kod yuborildi. Avvalgi kod endi ishlamaydi.")
+            return redirect("kundalik:verify")
+
+        form = VerifyCodeForm(request.POST)
+        if form.is_valid():
+            result = verification.check_code(form.cleaned_data["code"])
+            if result == "ok":
+                user.is_active = True
+                user.save(update_fields=["is_active"])
+                verification.delete()
+                request.session.pop(PENDING_SESSION_KEY, None)
+                login(request, user, backend="django.contrib.auth.backends.ModelBackend")
+                return redirect("kundalik:dashboard")
+            form.add_error("code", {
+                "invalid": f"Kod noto'g'ri. Yana {verification.attempts_left} ta urinish qoldi.",
+                "expired": "Kodning muddati tugagan. «Kodni qayta yuborish» tugmasini bosing.",
+                "too_many": "Urinishlar soni tugadi. «Kodni qayta yuborish» tugmasini bosing.",
+            }[result])
+
+    return render(request, "kundalik/verify.html", {
+        "form": form,
+        "masked_email": mask_email(user.email),
+        "minutes": int(EmailVerification.CODE_TTL.total_seconds() // 60),
+        "resend_wait": verification.seconds_until_resend(),
+    })
 
 
 # ---------------------------------------------------------------- state

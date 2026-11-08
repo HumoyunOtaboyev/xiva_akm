@@ -297,3 +297,17 @@ td.nowrap{white-space:nowrap;}
 @media (prefers-reduced-motion:no-preference){
   .progress-fill, .bar-fill2{transition:width .3s ease;}
 }
+
+/* ---------- EMAIL VERIFICATION ---------- */
+.auth-messages{margin:0 0 16px; text-align:left;}
+.auth-msg{font-size:13px; padding:9px 12px; border-radius:9px; margin-bottom:8px; line-height:1.45;}
+.auth-msg--error{background:var(--red-light); color:var(--red);}
+.auth-msg--success{background:var(--green-light); color:var(--green);}
+.auth-msg--info, .auth-msg--warning{background:var(--blue-light); color:var(--blue);}
+.verify-text{font-size:13.5px; color:var(--text-mute); line-height:1.55; margin:0 0 18px; text-align:left;}
+.verify-text strong{color:var(--text-dark);}
+.login-field input.code-input{font-size:26px; letter-spacing:10px; text-align:center; font-weight:700; padding:12px;}
+.resend-form{margin-top:14px;}
+.btn-link{background:none; border:none; color:var(--blue); font-weight:600; font-size:13.5px; cursor:pointer; font-family:inherit; padding:4px;}
+.btn-link:disabled{color:var(--text-mute); cursor:default;}
+.btn-link:not(:disabled):hover{text-decoration:underline;}
