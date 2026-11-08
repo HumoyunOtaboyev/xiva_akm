@@ -12,6 +12,8 @@
   --green-light:#e3f6ea;
   --red:#dc2626;
   --red-light:#fdecec;
+  --amber-dark:#a16207;
+  --amber-light:#fdf3d8;
   --slate:#64748b;
   --slate-light:#eef1f5;
   --card-shadow:0 1px 2px rgba(16,24,40,.04), 0 1px 6px rgba(16,24,40,.05);
@@ -143,6 +145,7 @@ a{color:var(--blue);}
 .filter-count{opacity:.7; font-weight:500; margin-left:2px;}
 
 .book-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:18px;}
+.book-grid > .muted{grid-column:1 / -1; margin:0;}
 .book-card{
   background:#fff; border:1px solid var(--border); border-radius:16px; padding:22px;
   box-shadow:var(--card-shadow); position:relative;
@@ -172,7 +175,52 @@ a{color:var(--blue);}
 .icon-btn:hover{background:var(--red-light); color:var(--red);}
 .book-card .icon-btn{position:absolute; top:14px; right:14px;}
 
-.add-form{display:grid; grid-template-columns:1.4fr 1fr .6fr 1fr auto; gap:12px; align-items:end;}
+.add-form{display:grid; grid-template-columns:1.4fr .6fr 1fr; gap:12px; align-items:end; margin-top:12px;}
+
+/* autocomplete (combobox) */
+.combo{position:relative;}
+.combo-list{
+  position:absolute; z-index:20; left:0; right:0; top:100%; margin:4px 0 0; padding:6px; list-style:none;
+  background:#fff; border:1px solid var(--border); border-radius:12px;
+  box-shadow:0 10px 30px rgba(16,24,40,.12); max-height:320px; overflow-y:auto;
+}
+.combo-opt{padding:9px 10px; border-radius:8px; cursor:pointer; display:flex; flex-direction:column; gap:2px;}
+.combo-opt.active, .combo-opt:hover{background:var(--blue-light);}
+.combo-opt.disabled{cursor:default; opacity:.55; background:none;}
+.combo-opt.create{flex-direction:row; align-items:center; gap:8px; color:var(--blue); font-weight:600; border-top:1px solid var(--border); border-radius:0 0 8px 8px; margin-top:4px;}
+.combo-opt.create:first-child{border-top:none; margin-top:0; border-radius:8px;}
+.combo-opt.empty{cursor:default; color:var(--text-mute); background:none;}
+.opt-title{font-weight:600; font-size:14px;}
+.opt-meta{font-size:12.5px; color:var(--text-mute);}
+.opt-tag{display:inline-block; margin-left:6px; padding:1px 8px; border-radius:10px; font-size:11px; font-weight:700; background:var(--amber-light); color:var(--amber-dark);}
+.opt-tag.in-list{background:var(--slate-light); color:var(--slate);}
+mark{background:#fff3b0; color:inherit; border-radius:2px; padding:0 1px;}
+
+.selected-book{
+  display:flex; align-items:center; gap:12px; margin-top:12px; padding:12px 14px;
+  border:1px solid #cddafd; background:var(--blue-light); border-radius:12px;
+}
+.selected-book[hidden]{display:none;}
+.selected-icon{font-size:22px;}
+.selected-body{flex:1; min-width:0;}
+.selected-label{font-size:11.5px; font-weight:700; color:var(--blue); text-transform:uppercase; letter-spacing:.03em;}
+.selected-title{font-weight:700; font-size:15px; overflow-wrap:anywhere;}
+.selected-meta{font-size:12.5px; color:var(--text-mute);}
+.hint{margin:10px 0 0; font-size:12.5px; color:var(--amber-dark); background:var(--amber-light); border-radius:9px; padding:8px 12px; line-height:1.45;}
+.hint[hidden]{display:none;}
+.submit-row{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:16px; flex-wrap:wrap;}
+.status-choice{border:none; margin:0; padding:0; display:flex; gap:18px; flex-wrap:wrap;}
+.status-choice label{display:flex; align-items:center; gap:6px; font-size:14px; cursor:pointer;}
+.status-choice input{accent-color:var(--blue); width:16px; height:16px;}
+.form-notice{color:var(--green); font-size:13px; margin-top:10px;}
+.form-notice:empty{display:none;}
+.badge.pending{background:var(--amber-light); color:var(--amber-dark); margin-left:4px;}
+.badge-row{display:flex; flex-wrap:wrap; gap:0 4px;}
+.btn-small{
+  border:1px solid #cddafd; background:var(--blue-light); color:var(--blue); font-weight:700; font-size:12.5px;
+  padding:6px 12px; border-radius:8px; cursor:pointer; margin-top:12px; font-family:inherit;
+}
+.btn-small:hover{background:#dbe5ff;}
 .field label{display:block; font-size:12px; font-weight:600; color:var(--text-mute); margin-bottom:5px;}
 .field input, .field select{
   width:100%; padding:10px 12px; border-radius:9px; border:1px solid var(--border);
@@ -228,6 +276,7 @@ td.nowrap{white-space:nowrap;}
 
 @media (max-width:1100px){
   .add-form{grid-template-columns:1fr 1fr;}
+  .add-form .combo{grid-column:1 / -1;}
   .log-form{grid-template-columns:1fr 1fr;}
 }
 @media (max-width:760px){

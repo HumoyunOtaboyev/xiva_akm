@@ -10,9 +10,22 @@ MAX_BOOK_PAGES = 10000
 
 
 class Author(models.Model):
-    """Yozuvchi — bir nechta kitob va kitobxonlar uchun umumiy."""
+    """Yozuvchi — umumiy katalog. Kitobxon qo'shgan yangi muallif admin tasdiqlaguncha faol emas."""
 
     name = models.CharField("Ismi", max_length=200)
+    is_active = models.BooleanField(
+        "Tasdiqlangan",
+        default=False,
+        help_text="Tasdiqlangan mualliflar barcha kitobxonlarning qidiruvida chiqadi.",
+    )
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name="Kim qo'shgan",
+    )
     created_at = models.DateTimeField("Qo'shilgan vaqti", auto_now_add=True)
 
     class Meta:
@@ -28,7 +41,11 @@ class Author(models.Model):
 
 
 class Book(models.Model):
-    """Kitob — umumiy katalog, har bir kitobxon unga `Reading` orqali bog'lanadi."""
+    """Kitob — umumiy katalog, har bir kitobxon unga `Reading` orqali bog'lanadi.
+
+    Kitobxon qo'shgan yangi kitob admin tasdiqlaguncha faol emas: uni faqat
+    qo'shgan odam ko'radi. Tasdiqlangach, hammaning qidiruvida chiqadi.
+    """
 
     class Genre(models.TextChoices):
         NOVEL = "novel", "Roman"
@@ -51,6 +68,11 @@ class Book(models.Model):
         validators=[MinValueValidator(1), MaxValueValidator(MAX_BOOK_PAGES)],
     )
     genre = models.CharField("Janr", max_length=20, choices=Genre.choices, default=Genre.OTHER)
+    is_active = models.BooleanField(
+        "Tasdiqlangan",
+        default=False,
+        help_text="Tasdiqlangan kitoblar barcha kitobxonlarning qidiruvida chiqadi.",
+    )
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -80,6 +102,10 @@ class Book(models.Model):
             old_pages = Book.objects.filter(pk=self.pk).values_list("pages", flat=True).first()
             pages_changed = old_pages is not None and old_pages != self.pages
         super().save(*args, **kwargs)
+        # Tasdiqlangan kitobning muallifi ham tasdiqlangan bo'lishi kerak.
+        if self.is_active and not self.author.is_active:
+            Author.objects.filter(pk=self.author_id).update(is_active=True)
+            self.author.is_active = True
         # Sahifalar soni o'zgarsa, kitobxonlarning progressini qayta hisoblaymiz.
         if pages_changed:
             for reading in self.readings.all():
@@ -107,6 +133,7 @@ class Reading(models.Model):
     status = models.CharField(
         "Holati", max_length=20, choices=Status.choices, default=Status.WANT, editable=False
     )
+    started_at = models.DateField("Boshlagan sana", null=True, blank=True, editable=False)
     finished_at = models.DateField("Tugatgan sana", null=True, blank=True, editable=False)
     created_at = models.DateTimeField("Qo'shilgan vaqti", auto_now_add=True)
 
@@ -131,21 +158,26 @@ class Reading(models.Model):
         """Progress, holat va tugatgan sanani yozuvlardan qayta hisoblaydi."""
         total = 0
         finished = None
+        first = None
         for log in self.logs.order_by("date", "id"):
+            if first is None:
+                first = log.date
             total += log.pages
             if finished is None and total >= self.book.pages:
                 finished = log.date
         self.current_page = min(total, self.book.pages)
+        if first and (self.started_at is None or first < self.started_at):
+            self.started_at = first
         if self.current_page >= self.book.pages:
             self.status = self.Status.COMPLETED
             self.finished_at = finished
-        elif self.current_page > 0:
+        elif self.current_page > 0 or self.started_at:
             self.status = self.Status.READING
             self.finished_at = None
         else:
             self.status = self.Status.WANT
             self.finished_at = None
-        self.save(update_fields=["current_page", "status", "finished_at"])
+        self.save(update_fields=["current_page", "status", "started_at", "finished_at"])
 
 
 class ReadingLog(models.Model):

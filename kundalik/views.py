@@ -1,4 +1,5 @@
 import json
+import re
 from datetime import date as date_cls
 from functools import wraps
 
@@ -6,10 +7,11 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.db import IntegrityError, transaction
+from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.utils import timezone
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_GET, require_POST
 
 from .forms import EmailAuthenticationForm, RegisterForm
 from .models import MAX_BOOK_PAGES, Author, Book, Reading, ReadingLog
@@ -69,12 +71,15 @@ def build_state(user):
         "books": [
             {
                 "id": r.id,
+                "bookId": r.book_id,
+                "active": r.book.is_active,
                 "title": r.book.title,
                 "author": r.book.author.name,
                 "pages": r.book.pages,
                 "current": r.current_page,
                 "status": r.status,
                 "genre": r.book.genre,
+                "startedAt": r.started_at.isoformat() if r.started_at else None,
                 "finishedAt": r.finished_at.isoformat() if r.finished_at else None,
             }
             for r in readings
@@ -114,12 +119,62 @@ def api_view(func):
     return wrapper
 
 
+def api_get_view(func):
+    """GET + login talab qiladi (qidiruv uchun)."""
+
+    @wraps(func)
+    @require_GET
+    def wrapper(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return error("auth", status=401)
+        return func(request, *args, **kwargs)
+
+    return wrapper
+
+
 def error(code, status=400, **params):
     return JsonResponse({"error": code, "params": params}, status=status)
 
 
-def ok(request):
-    return JsonResponse({"state": build_state(request.user)})
+def ok(request, notice=None):
+    data = {"state": build_state(request.user)}
+    if notice:
+        data["notice"] = notice
+    return JsonResponse(data)
+
+
+# O'zbek lotin yozuvida apostrof turlicha yoziladi: o' o` oʻ o‘ o’ — hammasi bir xil.
+APOSTROPHES = "'`ʻʼ‘’"
+APOSTROPHE_CLASS = "[" + re.escape(APOSTROPHES) + "]"
+
+
+def clean_text(value, limit):
+    return " ".join(str(value or "").split())[:limit]
+
+
+def name_regex(text, exact=False):
+    """Katta-kichik harf, apostrof turi va bo'shliqlarga befarq qidiruv regex'i."""
+    parts = []
+    for ch in text:
+        if ch in APOSTROPHES:
+            parts.append(APOSTROPHE_CLASS)
+        elif ch.isspace():
+            parts.append(r"\s+")
+        else:
+            parts.append(re.escape(ch))
+    pattern = "".join(parts)
+    return f"^{pattern}$" if exact else pattern
+
+
+def visible_to(user):
+    """Tasdiqlangan yozuvlar + foydalanuvchining o'zi qo'shgan (tekshiruvdagi) yozuvlar."""
+    return Q(is_active=True) | Q(created_by=user)
+
+
+def rank(name, query):
+    name = name.lower()
+    query = query.lower()
+    return (0 if name.startswith(query) else 1, name)
 
 
 def to_int(value):
@@ -129,41 +184,132 @@ def to_int(value):
         return None
 
 
+@api_get_view
+def search_books(request):
+    query = clean_text(request.GET.get("q"), 100)
+    if not query:
+        return JsonResponse({"results": []})
+    rx = name_regex(query)
+    books = list(
+        Book.objects.filter(visible_to(request.user))
+        .filter(Q(title__iregex=rx) | Q(author__name__iregex=rx))
+        .select_related("author")[:30]
+    )
+    books.sort(key=lambda b: (not b.is_active, *rank(b.title, query)))
+    books = books[:8]
+    in_list = set(
+        Reading.objects.filter(user=request.user, book_id__in=[b.id for b in books]).values_list("book_id", flat=True)
+    )
+    return JsonResponse({"results": [
+        {
+            "id": b.id,
+            "title": b.title,
+            "author": b.author.name,
+            "pages": b.pages,
+            "genre": b.genre,
+            "active": b.is_active,
+            "inList": b.id in in_list,
+        }
+        for b in books
+    ]})
+
+
+@api_get_view
+def search_authors(request):
+    query = clean_text(request.GET.get("q"), 100)
+    if not query:
+        return JsonResponse({"results": []})
+    authors = list(
+        Author.objects.filter(visible_to(request.user)).filter(name__iregex=name_regex(query))[:30]
+    )
+    authors.sort(key=lambda a: (not a.is_active, *rank(a.name, query)))
+    return JsonResponse({"results": [
+        {"id": a.id, "name": a.name, "active": a.is_active} for a in authors[:8]
+    ]})
+
+
 @api_view
 def add_book(request, data):
-    title = str(data.get("title") or "").strip()
-    author_name = " ".join(str(data.get("author") or "").split())
-    pages = to_int(data.get("pages"))
-    genre = data.get("genre")
+    """Kitobni kitobxon ro'yxatiga qo'shadi.
 
-    if not title:
-        return error("title_required")
-    if len(title) > 300:
-        return error("title_too_long")
-    if not author_name:
-        return error("author_required")
-    if len(author_name) > 200:
-        return error("author_too_long")
-    if pages is None or not 1 <= pages <= MAX_BOOK_PAGES:
-        return error("pages_invalid", max=MAX_BOOK_PAGES)
-    if genre not in Book.Genre.values:
-        genre = Book.Genre.OTHER
+    Ikki yo'l bor:
+    * `bookId` — katalogdan tanlangan kitob;
+    * `title` + `author`/`authorId` + `pages` + `genre` — katalogda yo'q yangi kitob.
+      U tasdiqlanmagan holatda yaratiladi (admin tasdiqlaguncha faqat shu kitobxonga ko'rinadi).
+    """
+    user = request.user
+    started = data.get("status", "reading") != "want"
+    notice = "added"
 
-    try:
-        with transaction.atomic():
-            author = Author.objects.filter(name__iexact=author_name).first()
+    if data.get("bookId") not in (None, ""):
+        book = Book.objects.filter(visible_to(user), pk=to_int(data.get("bookId"))).first()
+        if book is None:
+            return error("not_found", status=404)
+    else:
+        title = clean_text(data.get("title"), 301)
+        author_name = clean_text(data.get("author"), 201)
+        pages = to_int(data.get("pages"))
+        genre = data.get("genre")
+
+        if not title:
+            return error("title_required")
+        if len(title) > 300:
+            return error("title_too_long")
+
+        author = None
+        if data.get("authorId") not in (None, ""):
+            author = Author.objects.filter(visible_to(user), pk=to_int(data.get("authorId"))).first()
             if author is None:
-                author = Author.objects.create(name=author_name)
-            book = Book.objects.filter(title__iexact=title, author=author).first()
-            if book is None:
-                book = Book.objects.create(
-                    title=title, author=author, pages=pages, genre=genre, created_by=request.user
-                )
-            _, created = Reading.objects.get_or_create(user=request.user, book=book)
-    except IntegrityError:
-        return error("book_exists")
+                return error("not_found", status=404)
+        elif not author_name:
+            return error("author_required")
+        elif len(author_name) > 200:
+            return error("author_too_long")
+
+        if author is None:
+            # Bir xil nomli muallif (tekshiruvdagisi ham) bo'lsa — o'shani ishlatamiz, dublikat qilmaymiz.
+            author = Author.objects.filter(name__iregex=name_regex(author_name, exact=True)).first()
+
+        book = None
+        if author is not None:
+            book = Book.objects.filter(author=author, title__iregex=name_regex(title, exact=True)).first()
+
+        if book is None:
+            if pages is None or not 1 <= pages <= MAX_BOOK_PAGES:
+                return error("pages_invalid", max=MAX_BOOK_PAGES)
+            if genre not in Book.Genre.values:
+                genre = Book.Genre.OTHER
+            try:
+                with transaction.atomic():
+                    if author is None:
+                        author = Author.objects.create(name=author_name, created_by=user)
+                    book = Book.objects.create(
+                        title=title, author=author, pages=pages, genre=genre, created_by=user
+                    )
+            except IntegrityError:
+                return error("book_exists")
+        if not book.is_active:
+            notice = "pending"
+
+    reading, created = Reading.objects.get_or_create(user=user, book=book)
     if not created:
         return error("book_exists")
+    if started:
+        reading.started_at = timezone.localdate()
+        reading.save(update_fields=["started_at"])
+        reading.recalculate()
+    return ok(request, notice)
+
+
+@api_view
+def start_reading(request, data, pk):
+    reading = Reading.objects.select_related("book").filter(pk=pk, user=request.user).first()
+    if reading is None:
+        return error("not_found", status=404)
+    if reading.started_at is None:
+        reading.started_at = timezone.localdate()
+        reading.save(update_fields=["started_at"])
+        reading.recalculate()
     return ok(request)
 
 

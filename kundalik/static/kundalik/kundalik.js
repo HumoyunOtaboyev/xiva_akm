@@ -7,6 +7,9 @@
     csrf: body.dataset.csrf,
     loginUrl: body.dataset.loginUrl,
     addBook: body.dataset.apiAddBook,
+    searchBooks: body.dataset.apiSearchBooks,
+    searchAuthors: body.dataset.apiSearchAuthors,
+    startBook: body.dataset.apiStartBook,
     deleteBook: body.dataset.apiDeleteBook,
     addLog: body.dataset.apiAddLog,
     deleteLog: body.dataset.apiDeleteLog,
@@ -28,8 +31,8 @@
       no_books_reading: "Hozircha o'qilayotgan kitob yo'q.", no_activity: "Hozircha yozuvlar yo'q. «O'qish jurnali» bo'limida birinchi yozuvni qo'shing.",
       books_title: "Mening kitoblarim", books_sub: "Barcha kitoblaringiz bir joyda", add_book_btn: "+ Kitob qo'shish",
       filter_all: "Barchasi", filter_reading: "O'qilmoqda", filter_completed: "Tugallangan", filter_want: "O'qimoqchiman",
-      add_book_section: "Kitob qo'shish", field_title: "Nomi", field_author: "Muallif", field_pages: "Sahifalar",
-      field_genre: "Janr", btn_add: "Qo'shish", ph_title: "Kitob nomi", ph_author: "Muallif ismi",
+      add_book_section: "Kitob qo'shish", field_author: "Muallif", field_pages: "Sahifalar",
+      field_genre: "Janr", btn_add: "Qo'shish",
       no_books_category: "Bu toifada kitob yo'q.", no_books: "Hali kitob qo'shmagansiz. Pastdagi forma orqali birinchi kitobingizni qo'shing.",
       pages_of: "{current} / {pages} bet",
       log_title: "O'qish jurnali", log_sub: "Kunlik o'qish yozuvlaringiz",
@@ -48,6 +51,17 @@
       genre_novel: "Roman", genre_story: "Hikoya / qissa", genre_poetry: "She'riyat", genre_history: "Tarix",
       genre_science: "Ilmiy", genre_technical: "Texnik", genre_self_help: "Shaxsiy rivojlanish",
       genre_non_fiction: "Hujjatli / ommabop", genre_children: "Bolalar adabiyoti", genre_other: "Boshqa",
+      field_book_title: "Kitob nomi", ph_book_search: "Kitob nomi yoki muallifini yozing…",
+      ph_author_search: "Muallif ismini yozing…", field_status: "Holati",
+      selected_label: "Katalogdan tanlangan kitob", clear_selection: "Tanlovni bekor qilish",
+      new_book_hint: "«{title}» katalogda topilmadi — yangi kitob sifatida qo'shiladi. Admin tasdiqlagandan keyin boshqa kitobxonlarga ham ko'rinadi. Muallif, sahifalar soni va janrni to'ldiring.",
+      opt_new_book: "«{q}» — yangi kitob sifatida qo'shish", opt_new_author: "«{q}» — yangi muallif sifatida qo'shish",
+      opt_pending: "tekshiruvda", opt_in_list: "ro'yxatingizda bor", opt_none: "Katalogda topilmadi",
+      status_start: "O'qishni boshladim", status_later: "Keyinroq o'qiyman",
+      badge_pending: "⏳ Tekshiruvda", pending_title: "Admin tasdiqlagandan keyin boshqa kitobxonlarga ham ko'rinadi",
+      btn_start: "▶ O'qishni boshlash",
+      notice_added: "Kitob ro'yxatingizga qo'shildi.",
+      notice_pending: "Kitob ro'yxatingizga qo'shildi. Yangi kitob admin tasdiqlagandan keyin katalogda hammaga ko'rinadi.",
       err_title_required: "Kitob nomini kiriting.", err_title_too_long: "Kitob nomi juda uzun.",
       err_author_required: "Muallif ismini kiriting.", err_author_too_long: "Muallif ismi juda uzun.",
       err_pages_invalid: "Sahifalar sonini to'g'ri kiriting (1 – {max}).",
@@ -68,8 +82,8 @@
       no_books_reading: "No books currently being read.", no_activity: "No entries yet. Add your first one in the Reading Log.",
       books_title: "My Books", books_sub: "All your books in one place", add_book_btn: "+ Add Book",
       filter_all: "All", filter_reading: "Reading", filter_completed: "Completed", filter_want: "Want to read",
-      add_book_section: "Add a Book", field_title: "Title", field_author: "Author", field_pages: "Pages",
-      field_genre: "Genre", btn_add: "Add", ph_title: "Book title", ph_author: "Author name",
+      add_book_section: "Add a Book", field_author: "Author", field_pages: "Pages",
+      field_genre: "Genre", btn_add: "Add",
       no_books_category: "No books in this category.", no_books: "You haven't added any books yet. Use the form below to add your first one.",
       pages_of: "{current} / {pages} pages",
       log_title: "Reading Log", log_sub: "Your daily reading entries",
@@ -88,6 +102,17 @@
       genre_novel: "Novel", genre_story: "Short story", genre_poetry: "Poetry", genre_history: "History",
       genre_science: "Science", genre_technical: "Technical", genre_self_help: "Self-help",
       genre_non_fiction: "Non-fiction", genre_children: "Children's", genre_other: "Other",
+      field_book_title: "Book title", ph_book_search: "Type a book title or author…",
+      ph_author_search: "Type the author's name…", field_status: "Status",
+      selected_label: "Book selected from catalog", clear_selection: "Clear selection",
+      new_book_hint: "“{title}” isn't in the catalog — it will be added as a new book and becomes visible to other readers after an admin approves it. Fill in the author, pages and genre.",
+      opt_new_book: "“{q}” — add as a new book", opt_new_author: "“{q}” — add as a new author",
+      opt_pending: "pending review", opt_in_list: "already in your list", opt_none: "Not found in the catalog",
+      status_start: "I've started reading", status_later: "I'll read it later",
+      badge_pending: "⏳ Pending review", pending_title: "Becomes visible to other readers after an admin approves it",
+      btn_start: "▶ Start reading",
+      notice_added: "The book was added to your list.",
+      notice_pending: "The book was added to your list. New books appear in the shared catalog after an admin approves them.",
       err_title_required: "Enter a book title.", err_title_too_long: "The title is too long.",
       err_author_required: "Enter the author's name.", err_author_too_long: "The author's name is too long.",
       err_pages_invalid: "Enter a valid number of pages (1 – {max}).",
@@ -108,8 +133,8 @@
       no_books_reading: "Нет книг в процессе чтения.", no_activity: "Записей пока нет. Добавьте первую в «Журнале чтения».",
       books_title: "Мои книги", books_sub: "Все ваши книги в одном месте", add_book_btn: "+ Добавить книгу",
       filter_all: "Все", filter_reading: "Читаю", filter_completed: "Завершено", filter_want: "Хочу прочитать",
-      add_book_section: "Добавить книгу", field_title: "Название", field_author: "Автор", field_pages: "Страницы",
-      field_genre: "Жанр", btn_add: "Добавить", ph_title: "Название книги", ph_author: "Имя автора",
+      add_book_section: "Добавить книгу", field_author: "Автор", field_pages: "Страницы",
+      field_genre: "Жанр", btn_add: "Добавить",
       no_books_category: "В этой категории нет книг.", no_books: "Вы ещё не добавили ни одной книги. Добавьте первую с помощью формы ниже.",
       pages_of: "{current} / {pages} стр.",
       log_title: "Журнал чтения", log_sub: "Ваши ежедневные записи чтения",
@@ -128,6 +153,17 @@
       genre_novel: "Роман", genre_story: "Рассказ / повесть", genre_poetry: "Поэзия", genre_history: "История",
       genre_science: "Наука", genre_technical: "Техническая", genre_self_help: "Саморазвитие",
       genre_non_fiction: "Нон-фикшн", genre_children: "Детская", genre_other: "Другое",
+      field_book_title: "Название книги", ph_book_search: "Введите название книги или автора…",
+      ph_author_search: "Введите имя автора…", field_status: "Статус",
+      selected_label: "Книга из каталога", clear_selection: "Отменить выбор",
+      new_book_hint: "«{title}» нет в каталоге — она будет добавлена как новая книга и станет видна другим читателям после проверки администратором. Укажите автора, число страниц и жанр.",
+      opt_new_book: "«{q}» — добавить как новую книгу", opt_new_author: "«{q}» — добавить как нового автора",
+      opt_pending: "на проверке", opt_in_list: "уже в вашем списке", opt_none: "В каталоге не найдено",
+      status_start: "Я начал(а) читать", status_later: "Прочитаю позже",
+      badge_pending: "⏳ На проверке", pending_title: "Станет видна другим читателям после проверки администратором",
+      btn_start: "▶ Начать читать",
+      notice_added: "Книга добавлена в ваш список.",
+      notice_pending: "Книга добавлена в ваш список. Новые книги появляются в общем каталоге после проверки администратором.",
       err_title_required: "Введите название книги.", err_title_too_long: "Название слишком длинное.",
       err_author_required: "Введите имя автора.", err_author_too_long: "Имя автора слишком длинное.",
       err_pages_invalid: "Введите корректное число страниц (1 – {max}).",
@@ -159,6 +195,7 @@
     document.title = t("brand") + " — Xiva shahar AKM";
     document.querySelectorAll("[data-i18n]").forEach((el) => { el.textContent = t(el.dataset.i18n); });
     document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => { el.placeholder = t(el.dataset.i18nPlaceholder); });
+    document.querySelectorAll("[data-i18n-aria]").forEach((el) => { el.setAttribute("aria-label", t(el.dataset.i18nAria)); });
   }
 
   function setLanguage(lang) {
@@ -168,6 +205,7 @@
     applyStaticTranslations();
     clearErrors();
     renderAll();
+    updateBookForm();
   }
 
   /* ---------------- HELPERS ---------------- */
@@ -186,7 +224,18 @@
 
   function clearErrors() {
     $("book-error").textContent = "";
+    $("book-notice").textContent = "";
     $("log-error").textContent = "";
+  }
+
+  // Apostrof turlari (o' oʻ o‘ o’ o`) va bo'shliqlarga befarq taqqoslash
+  const norm = (s) => String(s || "").toLowerCase().replace(/[`'ʻʼ‘’]/g, "'").replace(/\s+/g, " ").trim();
+
+  function highlight(text, q) {
+    const src = String(text);
+    const i = norm(src).indexOf(norm(q));
+    if (!q || i < 0 || norm(src).length !== src.toLowerCase().length) return esc(src);
+    return esc(src.slice(0, i)) + "<mark>" + esc(src.slice(i, i + norm(q).length)) + "</mark>" + esc(src.slice(i + norm(q).length));
   }
 
   /* ---------------- API ---------------- */
@@ -213,6 +262,7 @@
     }
     state = data.state;
     renderAll();
+    return data;
   }
 
   function showError(el, err) {
@@ -286,11 +336,15 @@
         <div class="book-title">${esc(b.title)}</div>
         <div class="book-author">${esc(b.author)}</div>
         <div class="book-meta">${esc(genreLabel(b.genre))} · ${t("pages_of", { current: b.current, pages: b.pages })}</div>
-        <span class="badge ${b.status}">${statusLabel(b.status)}</span>
+        <div class="badge-row">
+          <span class="badge ${b.status}">${statusLabel(b.status)}</span>
+          ${b.active ? "" : `<span class="badge pending" title="${esc(t("pending_title"))}">${t("badge_pending")}</span>`}
+        </div>
         <div class="progress-row">
           <div class="progress-track"><div class="progress-fill ${b.status}" style="width:${pct(b)}%"></div></div>
           <span class="book-pct">${pct(b)}%</span>
         </div>
+        ${b.status === "want" ? `<button type="button" class="btn-small" data-start-book="${b.id}">${t("btn_start")}</button>` : ""}
       </div>`).join("") || `<p class="muted">${empty}</p>`;
   }
 
@@ -393,23 +447,205 @@
     renderBooks();
   });
 
+  /* ---------------- COMBOBOX (qidiruv bilan tanlash) ---------------- */
+  function makeCombo({ input, list, url, buildItems, onType }) {
+    let items = [];
+    let active = -1;
+    let timer = null;
+    let seq = 0;
+
+    const close = () => {
+      list.hidden = true;
+      input.setAttribute("aria-expanded", "false");
+      input.removeAttribute("aria-activedescendant");
+      active = -1;
+    };
+    const render = () => {
+      list.innerHTML = items.map((it, i) =>
+        `<li role="option" id="${list.id}-${i}" data-i="${i}" class="combo-opt ${it.cls || ""}" aria-disabled="${!it.pick}">${it.html}</li>`
+      ).join("");
+      list.hidden = !items.length;
+      input.setAttribute("aria-expanded", String(!list.hidden));
+      active = -1;
+    };
+    const setActive = (i) => {
+      const opts = list.querySelectorAll(".combo-opt");
+      opts.forEach((o) => o.classList.remove("active"));
+      active = i;
+      if (i >= 0 && opts[i]) {
+        opts[i].classList.add("active");
+        opts[i].scrollIntoView({ block: "nearest" });
+        input.setAttribute("aria-activedescendant", opts[i].id);
+      } else {
+        input.removeAttribute("aria-activedescendant");
+      }
+    };
+    const move = (dir) => {
+      if (!items.some((it) => it.pick)) return;
+      let i = active;
+      do { i = (i + dir + items.length) % items.length; } while (!items[i].pick);
+      setActive(i);
+    };
+    const pick = (i) => {
+      const it = items[i];
+      if (!it || !it.pick) return;
+      close();
+      it.pick();
+    };
+    const search = async () => {
+      const q = input.value.trim();
+      const mine = ++seq;
+      if (!q) { items = []; close(); return; }
+      let results = [];
+      try {
+        const res = await fetch(url + "?q=" + encodeURIComponent(q), { credentials: "same-origin" });
+        if (res.status === 401) { window.location.href = CFG.loginUrl; return; }
+        if (res.ok) results = (await res.json()).results || [];
+      } catch (e) { /* tarmoq xatosi — natijasiz davom etamiz */ }
+      if (mine !== seq || document.activeElement !== input) return;
+      items = buildItems(results, q);
+      render();
+    };
+
+    input.addEventListener("input", () => {
+      onType();
+      clearTimeout(timer);
+      timer = setTimeout(search, 200);
+    });
+    input.addEventListener("focus", () => { if (input.value.trim()) search(); });
+    input.addEventListener("blur", () => setTimeout(close, 120));
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowDown") { e.preventDefault(); if (list.hidden) search(); else move(1); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); if (!list.hidden) move(-1); }
+      else if (e.key === "Enter" && !list.hidden && active >= 0) { e.preventDefault(); pick(active); }
+      else if (e.key === "Escape" && !list.hidden) { e.preventDefault(); close(); }
+    });
+    list.addEventListener("mousedown", (e) => {
+      e.preventDefault(); // inputdan fokus ketmasin
+      const li = e.target.closest("[data-i]");
+      if (li) pick(Number(li.dataset.i));
+    });
+    return { close };
+  }
+
+  /* ---------------- KITOB QO'SHISH ---------------- */
+  let selectedBook = null;   // katalogdan tanlangan kitob
+  let selectedAuthor = null; // katalogdan tanlangan muallif
+  const titleInput = $("nb-title");
+  const authorInput = $("nb-author");
+
+  function updateBookForm() {
+    const hasBook = !!selectedBook;
+    $("selected-book").hidden = !hasBook;
+    $("new-book-fields").hidden = hasBook;
+    if (hasBook) {
+      $("sel-title").textContent = selectedBook.title;
+      $("sel-meta").textContent = `${selectedBook.author} · ${selectedBook.pages} ${t("unit_pages")} · ${genreLabel(selectedBook.genre)}` +
+        (selectedBook.active ? "" : ` · ${t("opt_pending")}`);
+    }
+    const title = titleInput.value.trim();
+    const hint = $("new-book-hint");
+    hint.hidden = hasBook || !title;
+    hint.textContent = title ? t("new_book_hint", { title }) : "";
+  }
+
+  function selectBook(book) {
+    selectedBook = book;
+    titleInput.value = book.title;
+    clearErrors();
+    updateBookForm();
+  }
+
+  function selectAuthor(author) {
+    selectedAuthor = author;
+    authorInput.value = author.name;
+    $("nb-pages").focus();
+  }
+
+  function resetBookForm() {
+    selectedBook = null;
+    selectedAuthor = null;
+    titleInput.value = "";
+    authorInput.value = "";
+    $("nb-pages").value = "";
+    $("nb-genre").value = "other";
+    updateBookForm();
+  }
+
+  makeCombo({
+    input: titleInput,
+    list: $("nb-title-list"),
+    url: CFG.searchBooks,
+    onType: () => {
+      if (selectedBook && titleInput.value !== selectedBook.title) selectedBook = null;
+      $("book-notice").textContent = "";
+      updateBookForm();
+    },
+    buildItems: (results, q) => {
+      const items = results.map((r) => ({
+        cls: r.inList ? "disabled" : "",
+        html: `<span class="opt-title">${highlight(r.title, q)}` +
+          (r.active ? "" : `<span class="opt-tag">${t("opt_pending")}</span>`) +
+          (r.inList ? `<span class="opt-tag in-list">${t("opt_in_list")}</span>` : "") +
+          `</span><span class="opt-meta">${highlight(r.author, q)} · ${r.pages} ${t("unit_pages")} · ${esc(genreLabel(r.genre))}</span>`,
+        pick: r.inList ? null : () => selectBook(r),
+      }));
+      if (!results.some((r) => norm(r.title) === norm(q))) {
+        if (!results.length) items.push({ cls: "empty", html: t("opt_none"), pick: null });
+        items.push({ cls: "create", html: "＋ " + esc(t("opt_new_book", { q })), pick: () => { updateBookForm(); authorInput.focus(); } });
+      }
+      return items;
+    },
+  });
+
+  makeCombo({
+    input: authorInput,
+    list: $("nb-author-list"),
+    url: CFG.searchAuthors,
+    onType: () => {
+      if (selectedAuthor && authorInput.value !== selectedAuthor.name) selectedAuthor = null;
+    },
+    buildItems: (results, q) => {
+      const items = results.map((a) => ({
+        html: `<span class="opt-title">${highlight(a.name, q)}` +
+          (a.active ? "" : `<span class="opt-tag">${t("opt_pending")}</span>`) + `</span>`,
+        pick: () => selectAuthor(a),
+      }));
+      if (!results.some((a) => norm(a.name) === norm(q))) {
+        items.push({ cls: "create", html: "＋ " + esc(t("opt_new_author", { q })), pick: () => $("nb-pages").focus() });
+      }
+      return items;
+    },
+  });
+
+  $("sel-clear").addEventListener("click", () => {
+    selectedBook = null;
+    titleInput.value = "";
+    updateBookForm();
+    titleInput.focus();
+  });
+
   $("add-book-form").addEventListener("submit", (e) => {
     e.preventDefault();
     const errEl = $("book-error");
     const button = e.target.querySelector("button[type=submit]");
-    errEl.textContent = "";
-    withBusy(button, async () => {
-      try {
-        await api(CFG.addBook, {
-          title: $("nb-title").value.trim(),
-          author: $("nb-author").value.trim(),
+    clearErrors();
+    const status = e.target.querySelector("input[name=nb-status]:checked").value;
+    const payload = selectedBook
+      ? { bookId: selectedBook.id, status }
+      : {
+          title: titleInput.value.trim(),
+          author: authorInput.value.trim(),
+          authorId: selectedAuthor ? selectedAuthor.id : "",
           pages: $("nb-pages").value,
           genre: $("nb-genre").value,
-        });
-        $("nb-title").value = "";
-        $("nb-author").value = "";
-        $("nb-pages").value = "";
-        $("nb-genre").value = "other";
+          status,
+        };
+    withBusy(button, async () => {
+      try {
+        const data = await api(CFG.addBook, payload);
+        resetBookForm();
+        $("book-notice").textContent = t(data.notice === "pending" ? "notice_pending" : "notice_added");
       } catch (err) { showError(errEl, err); }
     });
   });
@@ -434,6 +670,15 @@
   });
 
   $("book-grid").addEventListener("click", (e) => {
+    const startBtn = e.target.closest("[data-start-book]");
+    if (startBtn) {
+      const id = Number(startBtn.dataset.startBook);
+      withBusy(startBtn, async () => {
+        try { await api(CFG.startBook.replace("/0/", "/" + id + "/")); }
+        catch (err) { showError($("book-error"), err); }
+      });
+      return;
+    }
     const btn = e.target.closest("[data-delete-book]");
     if (!btn) return;
     const id = Number(btn.dataset.deleteBook);

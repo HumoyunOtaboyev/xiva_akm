@@ -12,6 +12,9 @@
   data-csrf="{{ csrf_token }}"
   data-login-url="{% url 'kundalik:login' %}"
   data-api-add-book="{% url 'kundalik:api_add_book' %}"
+  data-api-search-books="{% url 'kundalik:api_search_books' %}"
+  data-api-search-authors="{% url 'kundalik:api_search_authors' %}"
+  data-api-start-book="{% url 'kundalik:api_start_reading' 0 %}"
   data-api-delete-book="{% url 'kundalik:api_delete_book' 0 %}"
   data-api-add-log="{% url 'kundalik:api_add_log' %}"
   data-api-delete-log="{% url 'kundalik:api_delete_log' 0 %}">
@@ -76,19 +79,50 @@
 
       <div class="panel" style="margin-top:26px;">
         <h2 class="section-title" data-i18n="add_book_section">Kitob qo'shish</h2>
-        <form id="add-book-form" novalidate>
-          <div class="add-form">
-            <div class="field"><label for="nb-title" data-i18n="field_title">Nomi</label><input id="nb-title" maxlength="300" required data-i18n-placeholder="ph_title"></div>
-            <div class="field"><label for="nb-author" data-i18n="field_author">Muallif</label><input id="nb-author" maxlength="200" required data-i18n-placeholder="ph_author"></div>
-            <div class="field"><label for="nb-pages" data-i18n="field_pages">Sahifalar</label><input id="nb-pages" type="number" min="1" max="10000" inputmode="numeric" required placeholder="320"></div>
-            <div class="field"><label for="nb-genre" data-i18n="field_genre">Janr</label>
-              <select id="nb-genre">
-                {% for value, label in genres %}<option value="{{ value }}" data-i18n="genre_{{ value }}"{% if value == "other" %} selected{% endif %}>{{ label }}</option>{% endfor %}
-              </select>
+        <form id="add-book-form" novalidate autocomplete="off">
+          <div class="field combo">
+            <label for="nb-title" data-i18n="field_book_title">Kitob nomi</label>
+            <input id="nb-title" maxlength="300" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="nb-title-list" data-i18n-placeholder="ph_book_search">
+            <ul class="combo-list" id="nb-title-list" role="listbox" hidden></ul>
+          </div>
+
+          <div class="selected-book" id="selected-book" hidden>
+            <span class="selected-icon" aria-hidden="true">📗</span>
+            <div class="selected-body">
+              <div class="selected-label" data-i18n="selected_label">Tanlangan kitob</div>
+              <div class="selected-title" id="sel-title"></div>
+              <div class="selected-meta" id="sel-meta"></div>
             </div>
+            <button type="button" class="icon-btn" id="sel-clear" data-i18n-aria="clear_selection" aria-label="Tanlovni bekor qilish">✕</button>
+          </div>
+
+          <div id="new-book-fields">
+            <p class="hint" id="new-book-hint" hidden></p>
+            <div class="add-form">
+              <div class="field combo">
+                <label for="nb-author" data-i18n="field_author">Muallif</label>
+                <input id="nb-author" maxlength="200" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="nb-author-list" data-i18n-placeholder="ph_author_search">
+                <ul class="combo-list" id="nb-author-list" role="listbox" hidden></ul>
+              </div>
+              <div class="field"><label for="nb-pages" data-i18n="field_pages">Sahifalar</label><input id="nb-pages" type="number" min="1" max="10000" inputmode="numeric" placeholder="320"></div>
+              <div class="field"><label for="nb-genre" data-i18n="field_genre">Janr</label>
+                <select id="nb-genre">
+                  {% for value, label in genres %}<option value="{{ value }}" data-i18n="genre_{{ value }}"{% if value == "other" %} selected{% endif %}>{{ label }}</option>{% endfor %}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="submit-row">
+            <fieldset class="status-choice">
+              <legend class="sr-only" data-i18n="field_status">Holati</legend>
+              <label><input type="radio" name="nb-status" value="reading" checked> <span data-i18n="status_start">O'qishni boshladim</span></label>
+              <label><input type="radio" name="nb-status" value="want"> <span data-i18n="status_later">Keyinroq o'qiyman</span></label>
+            </fieldset>
             <button class="btn-primary" type="submit" data-i18n="btn_add">Qo'shish</button>
           </div>
           <div class="form-error" id="book-error" role="alert"></div>
+          <div class="form-notice" id="book-notice" role="status"></div>
         </form>
       </div>
     </section>
