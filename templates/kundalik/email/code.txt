@@ -1,0 +1,12 @@
+Assalomu alaykum, {{ name }}!
+
+{{ intro }}
+
+    {{ code }}
+
+Kod {{ minutes }} daqiqa amal qiladi.
+
+{{ ignore_note }}
+
+Hurmat bilan,
+Xiva shahar AKM

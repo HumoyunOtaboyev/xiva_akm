@@ -10,7 +10,7 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
-from .models import Author, Book, EmailVerification, Reading, ReadingLog
+from .models import Author, Book, EmailVerification, PasswordResetCode, Reading, ReadingLog
 
 User = get_user_model()
 
@@ -137,6 +137,16 @@ class AuthTests(TestCase):
         self.assertTrue(user.check_password("Ikkinchi-parol-2"))
         self.assertEqual(user.first_name, "Aziz K.")
 
+    def test_register_password_errors_in_uzbek(self):
+        res = self.register(password="12345678")
+        self.assertContains(res, "faqat raqamlardan")
+        self.assertContains(res, "Kamida 8 ta belgi")
+        res = self.client.post(reverse("kundalik:register"), {
+            "first_name": "Aziz", "email": "a@example.com", "password1": self.PASSWORD, "password2": "boshqa",
+        })
+        self.assertContains(res, "Parollar bir xil emas")
+        self.assertEqual(User.objects.count(), 0)
+
     def test_register_rejects_verified_email(self):
         User.objects.create_user("aziz@example.com", "aziz@example.com", "x")
         res = self.register(email="AZIZ@example.com")
@@ -183,6 +193,108 @@ class AuthTests(TestCase):
         res = self.client.post(reverse("kundalik:logout"))
         self.assertRedirects(res, reverse("home"))
         self.assertNotIn("_auth_user_id", self.client.session)
+
+
+@SIMPLE_STATIC
+class PasswordResetTests(TestCase):
+    OLD = "Eski-parol-2026"
+    NEW = "Yangi-parol-2026"
+
+    def setUp(self):
+        self.user = User.objects.create_user("aziz@example.com", "aziz@example.com", self.OLD, first_name="Aziz")
+
+    def request_code(self, email="Aziz@Example.com"):
+        return self.client.post(reverse("kundalik:password_reset"), {"email": email})
+
+    def last_code(self):
+        return re.search(r"\b(\d{6})\b", mail.outbox[-1].body).group(1)
+
+    def confirm(self, code, p1=NEW, p2=None):
+        return self.client.post(reverse("kundalik:password_reset_confirm"), {
+            "code": code, "new_password1": p1, "new_password2": p2 or p1,
+        })
+
+    def test_login_page_links_to_reset(self):
+        self.assertContains(self.client.get(reverse("kundalik:login")), reverse("kundalik:password_reset"))
+
+    def test_full_reset_flow(self):
+        res = self.request_code()
+        self.assertRedirects(res, reverse("kundalik:password_reset_confirm"))
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn("parolni tiklash", mail.outbox[0].subject)
+        res = self.confirm(self.last_code())
+        self.assertRedirects(res, reverse("kundalik:dashboard"))
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password(self.NEW))
+        self.assertFalse(PasswordResetCode.objects.exists())
+        self.client.logout()
+        res = self.client.post(reverse("kundalik:login"), {"username": "aziz@example.com", "password": self.NEW})
+        self.assertRedirects(res, reverse("kundalik:dashboard"))
+
+    def test_unknown_email_gets_same_response_without_email(self):
+        res = self.request_code("yoq@example.com")
+        self.assertRedirects(res, reverse("kundalik:password_reset_confirm"))
+        self.assertEqual(len(mail.outbox), 0)
+        self.assertContains(self.confirm("123456"), "Kod noto")
+
+    def test_wrong_code_and_limit(self):
+        self.request_code()
+        code = self.last_code()
+        wrong = "000000" if code != "000000" else "111111"
+        self.assertContains(self.confirm(wrong), "Yana 4 ta urinish qoldi")
+        for _ in range(4):
+            self.confirm(wrong)
+        self.assertContains(self.confirm(code), "Urinishlar soni tugadi")
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password(self.OLD))
+
+    def test_expired_code(self):
+        self.request_code()
+        PasswordResetCode.objects.update(expires_at=timezone.now() - timedelta(seconds=1))
+        self.assertContains(self.confirm(self.last_code()), "muddati tugagan")
+
+    def test_password_validation_does_not_burn_attempts(self):
+        self.request_code()
+        code = self.last_code()
+        self.assertContains(self.confirm(code, p1=self.NEW, p2="Boshqa-parol-2026"), "Parollar bir xil emas")
+        res = self.confirm(code, p1="123")
+        self.assertContains(res, "Parol juda qisqa")
+        self.assertContains(res, "faqat raqamlardan")
+        self.assertEqual(PasswordResetCode.objects.get().attempts, 0)
+        self.assertRedirects(self.confirm(code), reverse("kundalik:dashboard"))
+
+    def test_resend_cooldown(self):
+        self.request_code()
+        self.request_code()  # darhol qayta so'rash — yangi xat yuborilmaydi
+        self.assertEqual(len(mail.outbox), 1)
+        res = self.client.post(reverse("kundalik:password_reset_confirm"), {"resend": "1"}, follow=True)
+        self.assertContains(res, "soniyadan keyin")
+        PasswordResetCode.objects.update(last_sent_at=timezone.now() - timedelta(minutes=2))
+        res = self.client.post(reverse("kundalik:password_reset_confirm"), {"resend": "1"}, follow=True)
+        self.assertContains(res, "Yangi kod yuborildi")
+        self.assertEqual(len(mail.outbox), 2)
+
+    def test_reset_also_verifies_unverified_account(self):
+        self.user.is_active = False
+        self.user.save()
+        EmailVerification.issue(self.user)
+        self.request_code()
+        self.assertRedirects(self.confirm(self.last_code()), reverse("kundalik:dashboard"))
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.is_active)
+        self.assertFalse(EmailVerification.objects.exists())
+
+    def test_blocked_account_gets_no_code(self):
+        self.user.is_active = False
+        self.user.save()
+        self.request_code()
+        self.assertEqual(len(mail.outbox), 0)
+        self.assertContains(self.confirm("123456"), "Kod noto")
+        self.user.refresh_from_db()
+        self.assertFalse(self.user.is_active)
+
+    def test_confirm_page_without_request_redirects(self):
+        self.assertRedirects(self.client.get(reverse("kundalik:password_reset_confirm")), reverse("kundalik:password_reset"))
 
 
 @SIMPLE_STATIC
@@ -268,6 +380,17 @@ class ApiTests(TestCase):
         data = self.add_book(title="o'tkan kunlar", author="abdulla qodiriy").json()
         self.assertEqual(data["notice"], "added")
         self.assertEqual(Book.objects.count(), 2)
+
+    def test_exact_catalog_title_without_author_reuses_book(self):
+        author = Author.objects.create(name="Abdulla Qodiriy", is_active=True)
+        book = Book.objects.create(title="O‘tkan kunlar", author=author, pages=360, is_active=True)
+        res = self.post("api_add_book", {"title": "o'tkan kunlar"})
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.json()["notice"], "added")
+        self.assertEqual(Reading.objects.get().book, book)
+        self.assertEqual(Book.objects.count(), 1)
+        # Mos kelmasa — muallif so'raladi.
+        self.assertEqual(self.post("api_add_book", {"title": "Boshqa kitob"}).json()["error"], "author_required")
 
     def test_cyrillic_search_is_case_insensitive(self):
         author = Author.objects.create(name="Лев Толстой", is_active=True)

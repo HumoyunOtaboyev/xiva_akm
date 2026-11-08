@@ -14,12 +14,33 @@ from django.shortcuts import redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
 
-from .emails import mask_email, send_verification_code
-from .forms import EmailAuthenticationForm, RegisterForm, VerifyCodeForm
-from .models import MAX_BOOK_PAGES, Author, Book, EmailVerification, Reading, ReadingLog
+from .emails import mask_email, send_code
+from .forms import (
+    EmailAuthenticationForm,
+    PasswordResetConfirmForm,
+    PasswordResetRequestForm,
+    RegisterForm,
+    VerifyCodeForm,
+)
+from .models import (
+    MAX_BOOK_PAGES,
+    Author,
+    Book,
+    EmailCode,
+    EmailVerification,
+    PasswordResetCode,
+    Reading,
+    ReadingLog,
+)
 
 User = get_user_model()
 PENDING_SESSION_KEY = "kundalik_pending_user"
+RESET_SESSION_KEY = "kundalik_reset_email"
+CODE_ERRORS = {
+    "invalid": "Kod noto'g'ri. Yana {left} ta urinish qoldi.",
+    "expired": "Kodning muddati tugagan. «Kodni qayta yuborish» tugmasini bosing.",
+    "too_many": "Urinishlar soni tugadi. «Kodni qayta yuborish» tugmasini bosing.",
+}
 
 
 # ---------------------------------------------------------------- auth
@@ -34,7 +55,7 @@ def send_new_code(request, user):
     """Yangi kod yaratib yuboradi va foydalanuvchini sessiyada "kutilmoqda" deb belgilaydi."""
     _, code = EmailVerification.issue(user)
     request.session[PENDING_SESSION_KEY] = user.pk
-    if not send_verification_code(user, code):
+    if not send_code(user, code, "verify"):
         messages.error(request, SEND_FAILED)
         return False
     return True
@@ -100,17 +121,92 @@ def verify_email(request):
                 request.session.pop(PENDING_SESSION_KEY, None)
                 login(request, user, backend="django.contrib.auth.backends.ModelBackend")
                 return redirect("kundalik:dashboard")
-            form.add_error("code", {
-                "invalid": f"Kod noto'g'ri. Yana {verification.attempts_left} ta urinish qoldi.",
-                "expired": "Kodning muddati tugagan. «Kodni qayta yuborish» tugmasini bosing.",
-                "too_many": "Urinishlar soni tugadi. «Kodni qayta yuborish» tugmasini bosing.",
-            }[result])
+            form.add_error("code", CODE_ERRORS[result].format(left=verification.attempts_left))
 
     return render(request, "kundalik/verify.html", {
         "form": form,
         "masked_email": mask_email(user.email),
-        "minutes": int(EmailVerification.CODE_TTL.total_seconds() // 60),
+        "minutes": int(EmailCode.CODE_TTL.total_seconds() // 60),
         "resend_wait": verification.seconds_until_resend(),
+    })
+
+
+# ---------------------------------------------------------------- parolni tiklash
+
+def reset_user_for(email):
+    """Parolni tiklash mumkin bo'lgan foydalanuvchi: faol yoki emailini tasdiqlamagan.
+
+    Admin bloklagan (faol emas va tasdiqlash kutilmayotgan) hisoblar uchun None.
+    """
+    user = User.objects.filter(username__iexact=email).first() if email else None
+    if user is None or not (user.is_active or EmailVerification.is_pending(user)):
+        return None
+    return user
+
+
+def send_reset_code(user):
+    _, code = PasswordResetCode.issue(user)
+    return send_code(user, code, "reset")
+
+
+def password_reset_request(request):
+    """1-qadam: email kiritiladi. Email ro'yxatda bor-yo'qligi oshkor qilinmaydi."""
+    form = PasswordResetRequestForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        email = form.cleaned_data["email"]
+        user = reset_user_for(email)
+        if user is not None:
+            record = PasswordResetCode.objects.filter(user=user).first()
+            if (record is None or record.can_resend()) and not send_reset_code(user):
+                messages.error(request, SEND_FAILED)
+        request.session[RESET_SESSION_KEY] = email
+        return redirect("kundalik:password_reset_confirm")
+    return render(request, "kundalik/password_reset.html", {"form": form})
+
+
+def password_reset_confirm(request):
+    """2-qadam: kod + yangi parol. To'g'ri bo'lsa parol almashadi va kitobxon tizimga kiradi."""
+    email = request.session.get(RESET_SESSION_KEY)
+    if not email:
+        return redirect("kundalik:password_reset")
+    user = reset_user_for(email)
+    record = PasswordResetCode.objects.filter(user=user).first() if user else None
+
+    form = PasswordResetConfirmForm(user=user)
+    if request.method == "POST":
+        if "resend" in request.POST:
+            wait = record.seconds_until_resend() if record else 0
+            if wait:
+                messages.error(request, f"Yangi kodni {wait} soniyadan keyin so'rashingiz mumkin.")
+            elif user is None or send_reset_code(user):
+                # Email ro'yxatda bo'lmasa ham bir xil javob.
+                messages.success(request, "Yangi kod yuborildi. Avvalgi kod endi ishlamaydi.")
+            else:
+                messages.error(request, SEND_FAILED)
+            return redirect("kundalik:password_reset_confirm")
+
+        form = PasswordResetConfirmForm(request.POST, user=user)
+        if form.is_valid():
+            result = record.check_code(form.cleaned_data["code"]) if record else "invalid"
+            if result == "ok":
+                user.set_password(form.cleaned_data["new_password1"])
+                # Kod emailga keldi — demak email ham tasdiqlangan.
+                user.is_active = True
+                user.save(update_fields=["password", "is_active"])
+                EmailVerification.objects.filter(user=user).delete()
+                record.delete()
+                request.session.pop(RESET_SESSION_KEY, None)
+                request.session.pop(PENDING_SESSION_KEY, None)
+                login(request, user, backend="django.contrib.auth.backends.ModelBackend")
+                return redirect("kundalik:dashboard")
+            left = record.attempts_left if record else EmailCode.MAX_ATTEMPTS
+            form.add_error("code", CODE_ERRORS[result].format(left=left))
+
+    return render(request, "kundalik/password_reset_confirm.html", {
+        "form": form,
+        "masked_email": mask_email(email),
+        "minutes": int(EmailCode.CODE_TTL.total_seconds() // 60),
+        "resend_wait": record.seconds_until_resend() if record else 0,
     })
 
 
@@ -335,22 +431,30 @@ def add_book(request, data):
             return error("title_too_long")
 
         author = None
-        if data.get("authorId") not in (None, ""):
-            author = Author.objects.filter(visible_to(user), pk=to_int(data.get("authorId"))).first()
-            if author is None:
-                return error("not_found", status=404)
-        elif not author_name:
-            return error("author_required")
-        elif len(author_name) > 200:
-            return error("author_too_long")
-
-        if author is None:
-            # Bir xil nomli muallif (tekshiruvdagisi ham) bo'lsa — o'shani ishlatamiz, dublikat qilmaymiz.
-            author = Author.objects.filter(name__iregex=name_regex(author_name, exact=True)).first()
-
         book = None
-        if author is not None:
-            book = Book.objects.filter(author=author, title__iregex=name_regex(title, exact=True)).first()
+        if not author_name and data.get("authorId") in (None, ""):
+            # Muallif yozilmagan, lekin nom katalogdagi bitta kitobga to'liq mos — o'shani olamiz.
+            matches = list(
+                Book.objects.filter(visible_to(user), title__iregex=name_regex(title, exact=True))[:2]
+            )
+            if len(matches) == 1:
+                book = matches[0]
+
+        if book is None:
+            if data.get("authorId") not in (None, ""):
+                author = Author.objects.filter(visible_to(user), pk=to_int(data.get("authorId"))).first()
+                if author is None:
+                    return error("not_found", status=404)
+            elif not author_name:
+                return error("author_required")
+            elif len(author_name) > 200:
+                return error("author_too_long")
+            else:
+                # Bir xil nomli muallif (tekshiruvdagisi ham) bo'lsa — o'shani ishlatamiz, dublikat qilmaymiz.
+                author = Author.objects.filter(name__iregex=name_regex(author_name, exact=True)).first()
+
+            if author is not None:
+                book = Book.objects.filter(author=author, title__iregex=name_regex(title, exact=True)).first()
 
         if book is None:
             if pages is None or not 1 <= pages <= MAX_BOOK_PAGES:

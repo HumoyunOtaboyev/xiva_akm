@@ -54,9 +54,7 @@
       field_book_title: "Kitob nomi", ph_book_search: "Kitob nomi yoki muallifini yozing…",
       ph_author_search: "Muallif ismini yozing…", field_status: "Holati",
       selected_label: "Katalogdan tanlangan kitob", clear_selection: "Tanlovni bekor qilish",
-      new_book_hint: "«{title}» katalogda topilmadi — yangi kitob sifatida qo'shiladi. Admin tasdiqlagandan keyin boshqa kitobxonlarga ham ko'rinadi. Muallif, sahifalar soni va janrni to'ldiring.",
-      opt_new_book: "«{q}» — yangi kitob sifatida qo'shish", opt_new_author: "«{q}» — yangi muallif sifatida qo'shish",
-      opt_pending: "tekshiruvda", opt_in_list: "ro'yxatingizda bor", opt_none: "Katalogda topilmadi",
+      opt_pending: "tekshiruvda", opt_in_list: "ro'yxatingizda bor",
       status_start: "O'qishni boshladim", status_later: "Keyinroq o'qiyman",
       badge_pending: "⏳ Tekshiruvda", pending_title: "Admin tasdiqlagandan keyin boshqa kitobxonlarga ham ko'rinadi",
       btn_start: "▶ O'qishni boshlash",
@@ -105,9 +103,7 @@
       field_book_title: "Book title", ph_book_search: "Type a book title or author…",
       ph_author_search: "Type the author's name…", field_status: "Status",
       selected_label: "Book selected from catalog", clear_selection: "Clear selection",
-      new_book_hint: "“{title}” isn't in the catalog — it will be added as a new book and becomes visible to other readers after an admin approves it. Fill in the author, pages and genre.",
-      opt_new_book: "“{q}” — add as a new book", opt_new_author: "“{q}” — add as a new author",
-      opt_pending: "pending review", opt_in_list: "already in your list", opt_none: "Not found in the catalog",
+      opt_pending: "pending review", opt_in_list: "already in your list",
       status_start: "I've started reading", status_later: "I'll read it later",
       badge_pending: "⏳ Pending review", pending_title: "Becomes visible to other readers after an admin approves it",
       btn_start: "▶ Start reading",
@@ -156,9 +152,7 @@
       field_book_title: "Название книги", ph_book_search: "Введите название книги или автора…",
       ph_author_search: "Введите имя автора…", field_status: "Статус",
       selected_label: "Книга из каталога", clear_selection: "Отменить выбор",
-      new_book_hint: "«{title}» нет в каталоге — она будет добавлена как новая книга и станет видна другим читателям после проверки администратором. Укажите автора, число страниц и жанр.",
-      opt_new_book: "«{q}» — добавить как новую книгу", opt_new_author: "«{q}» — добавить как нового автора",
-      opt_pending: "на проверке", opt_in_list: "уже в вашем списке", opt_none: "В каталоге не найдено",
+      opt_pending: "на проверке", opt_in_list: "уже в вашем списке",
       status_start: "Я начал(а) читать", status_later: "Прочитаю позже",
       badge_pending: "⏳ На проверке", pending_title: "Станет видна другим читателям после проверки администратором",
       btn_start: "▶ Начать читать",
@@ -543,10 +537,6 @@
       $("sel-meta").textContent = `${selectedBook.author} · ${selectedBook.pages} ${t("unit_pages")} · ${genreLabel(selectedBook.genre)}` +
         (selectedBook.active ? "" : ` · ${t("opt_pending")}`);
     }
-    const title = titleInput.value.trim();
-    const hint = $("new-book-hint");
-    hint.hidden = hasBook || !title;
-    hint.textContent = title ? t("new_book_hint", { title }) : "";
   }
 
   function selectBook(book) {
@@ -590,10 +580,7 @@
           `</span><span class="opt-meta">${highlight(r.author, q)} · ${r.pages} ${t("unit_pages")} · ${esc(genreLabel(r.genre))}</span>`,
         pick: r.inList ? null : () => selectBook(r),
       }));
-      if (!results.some((r) => norm(r.title) === norm(q))) {
-        if (!results.length) items.push({ cls: "empty", html: t("opt_none"), pick: null });
-        items.push({ cls: "create", html: "＋ " + esc(t("opt_new_book", { q })), pick: () => { updateBookForm(); authorInput.focus(); } });
-      }
+      // Ro'yxatdan tanlanmasa — «Qo'shish» bosilganda yozilgan nom bilan yangi kitob yaratiladi.
       return items;
     },
   });
@@ -605,17 +592,11 @@
     onType: () => {
       if (selectedAuthor && authorInput.value !== selectedAuthor.name) selectedAuthor = null;
     },
-    buildItems: (results, q) => {
-      const items = results.map((a) => ({
-        html: `<span class="opt-title">${highlight(a.name, q)}` +
-          (a.active ? "" : `<span class="opt-tag">${t("opt_pending")}</span>`) + `</span>`,
-        pick: () => selectAuthor(a),
-      }));
-      if (!results.some((a) => norm(a.name) === norm(q))) {
-        items.push({ cls: "create", html: "＋ " + esc(t("opt_new_author", { q })), pick: () => $("nb-pages").focus() });
-      }
-      return items;
-    },
+    buildItems: (results, q) => results.map((a) => ({
+      html: `<span class="opt-title">${highlight(a.name, q)}` +
+        (a.active ? "" : `<span class="opt-tag">${t("opt_pending")}</span>`) + `</span>`,
+      pick: () => selectAuthor(a),
+    })),
   });
 
   $("sel-clear").addEventListener("click", () => {

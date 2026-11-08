@@ -244,46 +244,40 @@ class ReadingLog(models.Model):
         return result
 
 
-class EmailVerification(models.Model):
-    """Ro'yxatdan o'tgan, lekin emailini hali tasdiqlamagan kitobxon uchun kod.
+class EmailCode(models.Model):
+    """Emailga yuboriladigan 6 xonali kod (umumiy qism).
 
-    Kodning o'zi saqlanmaydi — faqat HMAC xeshi. Tasdiqlangach yozuv o'chiriladi.
+    Kodning o'zi saqlanmaydi — faqat HMAC xeshi. Ishlatilgach yozuv o'chiriladi.
     """
 
     CODE_TTL = timedelta(minutes=15)
     RESEND_COOLDOWN = timedelta(seconds=60)
     MAX_ATTEMPTS = 5
+    HASH_SALT = "kundalik.email-code"
 
-    user = models.OneToOneField(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name="email_verification",
-        verbose_name="Foydalanuvchi",
-    )
     code_hash = models.CharField(max_length=128, editable=False)
     expires_at = models.DateTimeField("Kod amal qiladi")
     attempts = models.PositiveSmallIntegerField("Noto'g'ri urinishlar", default=0)
     last_sent_at = models.DateTimeField("Oxirgi yuborilgan vaqt")
-    created_at = models.DateTimeField("Ro'yxatdan o'tgan vaqti", auto_now_add=True)
+    created_at = models.DateTimeField("Yaratilgan vaqti", auto_now_add=True)
 
     class Meta:
-        verbose_name = "Email tasdiqlash"
-        verbose_name_plural = "Email tasdiqlashlar (kutilmoqda)"
+        abstract = True
         ordering = ["-created_at"]
 
     def __str__(self):
         return str(self.user)
 
-    @staticmethod
-    def _hash(user_id, code):
-        return salted_hmac("kundalik.email-verification", f"{user_id}:{code}").hexdigest()
+    @classmethod
+    def _hash(cls, user_id, code):
+        return salted_hmac(cls.HASH_SALT, f"{user_id}:{code}").hexdigest()
 
     @classmethod
     def issue(cls, user):
         """Yangi kod yaratadi (eskisi bekor bo'ladi). (yozuv, kod) qaytaradi."""
         code = f"{secrets.randbelow(10 ** 6):06d}"
         now = timezone.now()
-        verification, _ = cls.objects.update_or_create(
+        record, _ = cls.objects.update_or_create(
             user=user,
             defaults={
                 "code_hash": cls._hash(user.pk, code),
@@ -292,7 +286,7 @@ class EmailVerification(models.Model):
                 "last_sent_at": now,
             },
         )
-        return verification, code
+        return record, code
 
     def seconds_until_resend(self):
         remaining = (self.last_sent_at + self.RESEND_COOLDOWN - timezone.now()).total_seconds()
@@ -317,6 +311,40 @@ class EmailVerification(models.Model):
         self.save(update_fields=["attempts"])
         return "too_many" if self.attempts >= self.MAX_ATTEMPTS else "invalid"
 
+
+class EmailVerification(EmailCode):
+    """Ro'yxatdan o'tgan, lekin emailini hali tasdiqlamagan kitobxon uchun kod."""
+
+    HASH_SALT = "kundalik.email-verification"
+
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="email_verification",
+        verbose_name="Foydalanuvchi",
+    )
+
+    class Meta(EmailCode.Meta):
+        verbose_name = "Email tasdiqlash"
+        verbose_name_plural = "Email tasdiqlashlar (kutilmoqda)"
+
     @classmethod
     def is_pending(cls, user):
         return not user.is_active and cls.objects.filter(user=user).exists()
+
+
+class PasswordResetCode(EmailCode):
+    """Parolni tiklash uchun emailga yuborilgan kod."""
+
+    HASH_SALT = "kundalik.password-reset"
+
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="password_reset_code",
+        verbose_name="Foydalanuvchi",
+    )
+
+    class Meta(EmailCode.Meta):
+        verbose_name = "Parol tiklash kodi"
+        verbose_name_plural = "Parol tiklash kodlari"

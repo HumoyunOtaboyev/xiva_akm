@@ -55,7 +55,7 @@ a{color:var(--blue);}
 }
 .btn-login:hover{background:var(--blue-dark);}
 .login-error{color:var(--red); font-size:12.5px; margin:0 0 12px; text-align:left;}
-.login-switch{font-size:13px; color:var(--text-mute); margin-top:18px;}
+.login-switch{font-size:13px; color:var(--text-mute); margin-top:18px; line-height:1.9;}
 .login-back{display:inline-block; font-size:12.5px; color:var(--text-mute); margin-top:12px; text-decoration:none;}
 .login-back:hover{color:var(--text-dark);}
 
@@ -187,9 +187,6 @@ a{color:var(--blue);}
 .combo-opt{padding:9px 10px; border-radius:8px; cursor:pointer; display:flex; flex-direction:column; gap:2px;}
 .combo-opt.active, .combo-opt:hover{background:var(--blue-light);}
 .combo-opt.disabled{cursor:default; opacity:.55; background:none;}
-.combo-opt.create{flex-direction:row; align-items:center; gap:8px; color:var(--blue); font-weight:600; border-top:1px solid var(--border); border-radius:0 0 8px 8px; margin-top:4px;}
-.combo-opt.create:first-child{border-top:none; margin-top:0; border-radius:8px;}
-.combo-opt.empty{cursor:default; color:var(--text-mute); background:none;}
 .opt-title{font-weight:600; font-size:14px;}
 .opt-meta{font-size:12.5px; color:var(--text-mute);}
 .opt-tag{display:inline-block; margin-left:6px; padding:1px 8px; border-radius:10px; font-size:11px; font-weight:700; background:var(--amber-light); color:var(--amber-dark);}
@@ -206,8 +203,6 @@ mark{background:#fff3b0; color:inherit; border-radius:2px; padding:0 1px;}
 .selected-label{font-size:11.5px; font-weight:700; color:var(--blue); text-transform:uppercase; letter-spacing:.03em;}
 .selected-title{font-weight:700; font-size:15px; overflow-wrap:anywhere;}
 .selected-meta{font-size:12.5px; color:var(--text-mute);}
-.hint{margin:10px 0 0; font-size:12.5px; color:var(--amber-dark); background:var(--amber-light); border-radius:9px; padding:8px 12px; line-height:1.45;}
-.hint[hidden]{display:none;}
 .submit-row{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:16px; flex-wrap:wrap;}
 .status-choice{border:none; margin:0; padding:0; display:flex; gap:18px; flex-wrap:wrap;}
 .status-choice label{display:flex; align-items:center; gap:6px; font-size:14px; cursor:pointer;}
